@@ -2,7 +2,9 @@
 
 ## 配置注意事项
 
-BackEnd\django_backend\backend\settings.py中
+### 数据库
+
+BackEnd/django_backend/backend/settings.py中
 
 ```python
 DATABASES = {
@@ -10,30 +12,116 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'buaa',
         'USER': 'root',
-        'PASSWORD': 'root19373421',  # FILL THIS
-        'HOST': '127.0.0.1',  # HOST
+        'PASSWORD': 'xxx',  # FILL THIS
+        'HOST': 'xxx',  # HOST
         'POST': 3306,  # 端口
         'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
-# 数据库密码改成自己的
-
-APPID = 'wx6554e3b40d100aa1'
-SECRET = 'b32aa15ba5fb49b1bb141b2b6aa9a0e9'
-# 微信开发者工具里
+# 数据库都统一使用服务器上的数据库，这儿HOST、PASSWORD改成服务器数据库的IP和PASSWORD，微信群公告有
 ```
 
+### git
 
+统一使用github上面的代码，约定纳入git版本管理的文件有BackEnd\django_backend/backend和BackEnd/django_backend/BUAA中的py文件以及README.md，参考gitignore配置如下
 
+```
+*
+!django_backend/
+!django_backend/backend/
+!django_backend/backend/*
+!django_backend/BUAA/
+!django_backend/BUAA/*
+!README.md
+```
 
+## 服务器相关操作
 
+### 服务器基本信息
 
+见微信群
 
+### 服务器配置
 
+**1. MySql**
+账号密码见微信群，开放3306端口，可以远程连接
 
+**2. Anaconda**
+服务器上面的项目使用的python版本是3.7，所以涉及python相关的操作（如pip）都要先`conda activate condaSE37`，其中`condaSE37`是为python37环境取的名字
 
+指令
 
+```python
+conda activate condaSE37 # 封装成py37
+pip install $1 -i https://pypi.tuna.tsinghua.edu.cn/simple # 封装成pi，使用：pi xxx
+pip uninstall $1 # 封装成unpi，使用：unpi xxx
+```
 
+后端使用nginx+uwsgi+daphne+django
+
+### 3. nginx
+
+nginx用于反向代理，详细配置见服务器`/root/BackEnd/django_backend/nginx_all.conf`
+
+主要功能：
+
+1. 监听80端口，处理客户端浏览器发来的请求，提供前端功能（前端代码中server为8000端口）
+2. 监听8000端口，匹配url进行转发：`/static/`，直接返回静态文件，`/`，转发给8001端口（uwsgi监听），`/ws`处理websocket连接请求，转发给8002端口（daphne监听）
+
+日志文件：`/root/BackEnd/django_backend/logs/nginx_access.log`和`/root/BackEnd/django_backend/logs/nginx_error.log`
+
+指令：
+
+```python
+nginx -c /root/BackEnd/django_backend/nginx_all.conf # 用于带配置启动nginx，封装成nginx_s
+nginx -s quit # 用于停止nginx，封装成nginx_q
+nginx -s reload # 用于重启nginx，封装成nginx_r
+```
+
+### 4. uwsgi
+
+uwsgi是一个比django自带服务器功能更全的服务器，用于运行django框架，将http协议转换成python使用的WSGI协议等，详细配置见服务器`/root/BackEnd/django_backend/uwsgi.ini`
+
+主要功能：监听8001端口，将请求经协议转换后输送给python程序
+
+日志文件：`/root/BackEnd/django_backend/logs/uwsgi.log`
+
+指令：
+
+```python
+uwsgi --ini /root/BackEnd/django_backend/uwsgi.ini # 用于启动uwsgi，封装成uwsgi_s
+uwsgi --stop /root/BackEnd/django_backend/uwsgi.pid # 用于停止uwsgi，封装成uwsgi_q
+uwsgi --reload /root/BackEnd/django_backend/uwsgi.pid # 用于重启uwsgi，封装成uwsgi_r
+```
+
+### 5. daphne
+
+daphne用于处理websocket请求（uwsgi无法处理），并且使用supervisor管理daphne进程
+
+supervisor的配置文件在`/root/BackEnd/django_backend/supervisord.conf`
+supervisor的日志文件在`/tmp/supervisord.log`
+daphne的日志文件在`/root/BackEnd/django_backend/logs/websocket.log`
+
+supervisor指令：
+
+```python
+supervisord -c /root/BackEnd/django_backend/supervisord.conf # 启动supervisor，自动启动daphne，封装成sv_s
+supervisorctl shutdown # 停止supervisor，包括其管理的所有进程，封装成sv_q
+supervisorctl status # 查看supervisor当前管理的所有进程状态，封装成sv_status
+supervosorctl start daphne # 启动daphne，封装成daphne_s
+supervisorctl stop daphne # 停止daphne，封装成daphne_q
+supervisorctl restart daphne # 重启daphne，封装成daphne_r
+```
+
+直接使用daphne指令：
+
+在`/root/BackEnd/django_backend`目录下`daphne -p 8002 backend.asgi:application`
+
+注：用superisor，websocket.log写入好像会变慢
+
+## 说明
+
+每次修改后端代码，都要重启nginx、uwsgi、daphne，即：`nginx_r`，`uwsgi_r`，`daphne_r`
 
 ---
 

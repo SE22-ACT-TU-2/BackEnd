@@ -15,9 +15,11 @@ import os
 import time
 import sys
 
+
 # shared data
 class GlobalVar:
     clients = {}
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +31,6 @@ SECRET_KEY = ')n&%s@g3!jpkyz@tdj*)jst3mbzhhp$7v(trttcrl5x!7il--_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 
 # # SECURITY安全设置 - 支持http时建议开启
 # PLATFORM = sys.platform
@@ -87,7 +88,7 @@ INSTALLED_APPS = [
 # }
 
 MIDDLEWARE = [
-    
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -124,7 +125,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.routing.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -134,7 +134,7 @@ DATABASES = {
         'NAME': 'buaa',
         'USER': 'root',
         'PASSWORD': '12345678',  # FILL THIS
-        'HOST': '127.0.0.1',  # HOST
+        'HOST': '114.116.194.3',  # HOST
         'POST': 3306,  # 端口
         'OPTIONS': {'charset': 'utf8mb4'},
     }
@@ -183,29 +183,18 @@ LANGUAGE_CODE = 'zh-hans'
 TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
 
 # 邮件配置
 EMAIL_USE_SSL = False
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-
-EMAIL_HOST = 'smtp.qq.com'  # 如果是 163 改成 smtp.163.com
-EMAIL_HOST = 'smtp.126.com'
-
+EMAIL_HOST = 'smtp.126.com'  # 如果是 163 改成 smtp.163.com
 EMAIL_PORT = 587
-
-EMAIL_HOST_USER = '@qq.com'  # 帐号
-EMAIL_HOST_USER = 'se2022_act_tu_2@126.com'
-
-EMAIL_HOST_PASSWORD = ''  # 授权码（****）
-EMAIL_HOST_PASSWORD = 'SE2022_ACT_TU_2_'
-EMAIL_HOST_PASSWORD = "RLUZVOSJBRVZGAPD"
-# 默认邮件
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = 'se2022_act_tu_2@126.com'  # 帐号
+EMAIL_HOST_PASSWORD = "RLUZVOSJBRVZGAPD"  # 授权码（****）
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # 默认邮件
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -274,13 +263,11 @@ REST_FRAMEWORK = {
 
 }
 
-# APPID = 'wx6554e3b40d100aa1'
-# SECRET = 'b32aa15ba5fb49b1bb141b2b6aa9a0e9'
 APPID = 'wxd7b0276776d1c364'
 SECRET = '11d0e0713ebf937ef5f6519de09f26f6'
 
 CRONJOBS = [
-    #('0 */2 * * *', 'BUAA.scheduled.get_access_token', '>>/home/get_access_token.log'),
+    # ('0 */2 * * *', 'BUAA.scheduled.get_access_token', '>>/home/get_access_token.log'),
     ('*/1 * * * *', 'BUAA.scheduled.get_boya', '>>/home/get_boya.log'),
 ]
 
@@ -370,9 +357,9 @@ LOGGING = {
         },
 
         'django.server': {
-            'handlers' : ['django.server'],
+            'handlers': ['django.server'],
             'propagate': True,
-            'level' : 'INFO'
+            'level': 'INFO'
         },
     }
 }
