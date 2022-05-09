@@ -1,0 +1,6 @@
+.idea
+*.str
+*.txt
+*.log
+log/
+*.json
