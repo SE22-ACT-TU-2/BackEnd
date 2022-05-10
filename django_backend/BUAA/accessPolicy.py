@@ -469,6 +469,11 @@ class ImageAccessPolicy(AccessPolicy):
             "principal": "*",
             "effect": "allow",
             "condition": "(is_super_user or is_manager)"
+        },
+        {
+            "action": ["verify"],
+            "principal": "*",
+            "effect": "allow"
         }
     ]
 

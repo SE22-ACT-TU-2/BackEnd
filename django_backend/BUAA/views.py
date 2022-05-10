@@ -36,9 +36,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 # from datetime import datetime
 
-# base_dir = '/root/ReedSailing-Web/server_files/'
-base_dir = 'C:/test/'
+base_dir = '/root/server_files/'
 web_dir = 'https://www.reedsailing.xyz/server_files/'
+web_dir = 'http://114.116.194.3/server_files/'
 
 sender = utils.MailSender()
 
@@ -1424,6 +1424,48 @@ class ImageUploadViewSet(ModelViewSet):
             "img": web_dir + path
         }
         return Response(res, 200)
+    
+    # 认证（用户端）
+    def verify(self, request):
+        # image = request.FILES['picture']
+        # user_id = request.data['user_id']
+        # name = request.data['name']
+        # student_id = request.data['student_id']
+        # avatar = request.data['avatar']
+        # data = {
+        #     "user_id": user_id,
+        #     "name": name,
+        #     "student_id": student_id,
+        #     "avatar": avatar
+        # }
+        # serializer = UserVerifySerializer(data=data)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save()
+        # return Response(data={"msg": "提交成功"}, status=201)
+        image = request.FILES['picture']
+        user_id = request.POST.get('user_id')
+        name = request.POST.get('name')
+        student_id = request.POST.get('student_id')
+        path = "userVerify/" + str(user_id) + '_' + get_random_str() + '.jpg'
+        with open(base_dir + path, 'wb') as f1:
+            f1.write(image.read())
+            f1.close()
+        avatar = web_dir + path
+        verify = UserVerify.objects.filter(user_id=user_id)
+        if verify.exists():
+            verify.update(avatar=avatar)
+        else:
+            data = {
+                "user_id": user_id,
+                "name": name,
+                "student_id": student_id,
+                "student_number": student_id,
+                "avatar": avatar
+            }
+            serializer = UserVerifySerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response(data={"msg": "提交成功"}, status=201)
 
 
 @api_view(['GET'])
@@ -1553,19 +1595,30 @@ class UserVerifyViewSet(ModelViewSet):
 
     # 认证（用户端）
     def verify(self, request):
+        print("111111111111111")
+        print(request)
+        image = request.POST["picture"]
         user_id = request.data['user_id']
         name = request.data['name']
         student_id = request.data['student_id']
-        avatar = request.data['avatar']
-        data = {
-            "user_id": user_id,
-            "name": name,
-            "student_id": student_id,
-            "avatar": avatar
-        }
-        serializer = UserVerifySerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        path = "userVerify/" + str(user_id) + '_' + get_random_str() + '.jpg'
+        with open(base_dir + path, 'wb') as f1:
+            f1.write(image.read)
+            f1.close()
+        avatar = web_dir + path
+        verify = UserVerify.objects.filter(user_id=user_id)
+        if verify.exists():
+            verify.update(avatar=avatar)
+        else:
+            data = {
+                "user_id": user_id,
+                "name": name,
+                "student_id": student_id,
+                "avatar": avatar
+            }
+            serializer = UserVerifySerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
         return Response(data={"msg": "提交成功"}, status=201)
 
 
@@ -2370,10 +2423,10 @@ class GroundViewSet(ModelViewSet):
         buaa_admin = SuperAdmin.objects.get(user_ptr_id=admin_id)
         admin_type = buaa_admin.type
         if admin_type == "super":
-            grounds = Ground.objects.all()
+            grounds = Ground.objects.all().order_by('code')
             return self.paginate(grounds)
         if admin_type == "ground":
-            grounds = Ground.objects.all()
+            grounds = Ground.objects.all().order_by('code')
             ground_list = []
             for ground in grounds:
                 ground_admin = ground.administrator_id
@@ -2413,12 +2466,100 @@ class GroundViewSet(ModelViewSet):
         begin_time1 = begin_time0.split(' ')[1]
         end_time0 = end_time0.strftime('%Y-%m-%d %H:%M:%S')
         end_time1 = end_time0.split(' ')[1]
+        ground_code = ''
+        if area == '羽毛球馆':
+            now_id = Ground.objects.filter(area='羽毛球馆').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "01010" + next_id
+            else:
+                ground_code = "0101" + next_id
+        elif area == '乒乓球馆':
+            now_id = Ground.objects.filter(area='乒乓球馆').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "01020" + next_id
+            else:
+                ground_code = "0102" + next_id
+        elif area == '新主C楼':
+            now_id = Ground.objects.filter(area='新主C楼').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02010" + next_id
+            else:
+                ground_code = "0201" + next_id
+        elif area == '新主D楼':
+            now_id = Ground.objects.filter(area='新主D楼').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02020" + next_id
+            else:
+                ground_code = "0202" + next_id
+        elif area == '新主E楼':
+            now_id = Ground.objects.filter(area='新主E楼').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02030" + next_id
+            else:
+                ground_code = "0203" + next_id
+        elif area == '新主F楼':
+            now_id = Ground.objects.filter(area='新主F楼').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02040" + next_id
+            else:
+                ground_code = "0204" + next_id
+        elif area == '新主G楼':
+            now_id = Ground.objects.filter(area='新主G楼').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02050" + next_id
+            else:
+                ground_code = "0205" + next_id
+        elif area == '教学楼1':
+            now_id = Ground.objects.filter(area='教学楼1').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02060" + next_id
+            else:
+                ground_code = "0206" + next_id
+        elif area == '教学楼2':
+            now_id = Ground.objects.filter(area='教学楼2').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02070" + next_id
+            else:
+                ground_code = "0207" + next_id
+        elif area == '教学楼3':
+            now_id = Ground.objects.filter(area='教学楼3').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02080" + next_id
+            else:
+                ground_code = "0208" + next_id
+        elif area == '主M':
+            now_id = Ground.objects.filter(area='主M').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02090" + next_id
+            else:
+                ground_code = "0209" + next_id
+        elif area == '教学楼5':
+            now_id = Ground.objects.filter(area='教学楼5').__len__()
+            next_id = str(now_id + 1)
+            if now_id + 1 < 10:
+                ground_code = "02100" + next_id
+            else:
+                ground_code = "0210" + next_id
+        else:
+            ground_code = "999999"
+
         Ground.objects.create(name=name, area=area, price=price, apply_needed=apply_needed,
                               description=description, avatar=avatar, begin_time=begin_time1,
-                              end_time=end_time1, administrator_id=administrator)
+                              end_time=end_time1, administrator_id=administrator, code=ground_code)
         grounds = Ground.objects.filter(name=name, area=area, price=price, apply_needed=apply_needed,
                                         description=description, avatar=avatar, begin_time=begin_time1,
-                                        end_time=end_time1, administrator_id=administrator)
+                                        end_time=end_time1, administrator_id=administrator, code=ground_code)
         return self.paginate(grounds)
 
     # 修改场地信息(web)

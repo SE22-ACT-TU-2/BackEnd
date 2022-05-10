@@ -223,7 +223,7 @@ urlpatterns = [
         url(r'^sites/(?P<pk>\w+)/$', GroundViewSet.as_view({"get": "get_grounds_by_area"})),  # 根据区域获取场地
         # 用户审核
         url(r'^users/verify/(?P<pk>\w+)/$', UserVerifyViewSet.as_view({"get": "if_verified"})),  # 查看认证信息
-        url(r'^users/verify/', UserVerifyViewSet.as_view({"post": "verify"})),  # 认证
+        url(r'^users/verify/', ImageUploadViewSet.as_view({"post": "verify"})),  # 认证
 
         # 管理端（新）
         url(r'^users/blackList/$', WXUserViewSet.as_view({"get": "blackList"})),  # 黑名单列表

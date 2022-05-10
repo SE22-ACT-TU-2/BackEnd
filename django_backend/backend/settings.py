@@ -134,7 +134,7 @@ DATABASES = {
         'NAME': 'buaa',
         'USER': 'root',
         'PASSWORD': '12345678',  # FILL THIS
-        'HOST': '114.116.194.3',  # HOST
+        'HOST': '127.0.0.1',  # HOST
         'POST': 3306,  # 端口
         'OPTIONS': {'charset': 'utf8mb4'},
     }

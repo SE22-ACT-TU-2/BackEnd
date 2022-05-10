@@ -203,6 +203,7 @@ class Ground(models.Model):
     begin_time = models.TimeField(verbose_name="开放开始时间", default="08:00:00")
     end_time = models.TimeField(verbose_name="开放结束时间", default="22:00:00")
     administrator = models.ForeignKey('SuperAdmin', null=True, on_delete=models.CASCADE, verbose_name="场地管理员")
+    code = models.CharField(max_length=30, verbose_name="编码", default="999999")
 
 
 # 场地申请
