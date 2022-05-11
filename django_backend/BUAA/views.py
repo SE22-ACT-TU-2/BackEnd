@@ -161,6 +161,11 @@ def _get_booking_time(ground_id, date, user_id):
     return res
 
 
+def _is_csstd(user_id):
+    user = WXUser.objects.get(id=user_id)
+    return user.is_csstd
+
+
 def send_new_boya_notf(data):
     """interface for external boya creating function"""
     content = utils.get_notif_content(NOTIF.NewBoya, act_name=data['name'])
@@ -1424,7 +1429,7 @@ class ImageUploadViewSet(ModelViewSet):
             "img": web_dir + path
         }
         return Response(res, 200)
-    
+
     # 认证（用户端）
     def verify(self, request):
         # image = request.FILES['picture']
@@ -1777,7 +1782,9 @@ class GroundApplyViewSet(ModelViewSet):
             date = ground_time['date']  # "2022-04-20"
             date = _to_standard_date(date)
             begin_time = ground_time['begin_time']  # 16
+            begin_time = int(begin_time)
             end_time = ground_time['end_time']  # 17
+            end_time = int(end_time)
             apply_needed = Ground.objects.get(id=ground_id).apply_needed
 
             # 检查余额
@@ -1823,7 +1830,8 @@ class GroundApplyViewSet(ModelViewSet):
 
             # 增加一条预约记录（入库校验）
             serializer = GroundApplySerializer(data=data)
-            serializer.is_valid(raise_exception=True)
+            if not serializer.is_valid(raise_exception=False):
+                return Response(data={"msg": "预约场地冲突"}, status=201)
             serializer.save()
             # 扣钱
             WXUser.objects.filter(id=user_id).update(money=pre_money - price)
@@ -1839,7 +1847,9 @@ class GroundApplyViewSet(ModelViewSet):
                 date = ground_time['date']  # "2022-04-20"
                 date = _to_standard_date(date)
                 begin_time = ground_time['begin_time']  # 16
+                begin_time = int(begin_time)
                 end_time = ground_time['end_time']  # 17
+                end_time = int(end_time)
                 price = price + _get_price_hour(ground_id, begin_time, end_time)
                 data = {
                     "state": 1,
@@ -1852,7 +1862,8 @@ class GroundApplyViewSet(ModelViewSet):
                     "file": file
                 }
                 serializer = GroundApplySerializer(data=data)
-                serializer.is_valid(raise_exception=True)
+                if not serializer.is_valid(raise_exception=False):
+                    return Response(data={"msg": "预约场地冲突"}, status=201)
                 serializer_list.append(serializer)
             if pre_money < price:
                 return Response(data={"msg": "余额不足，预约失败"}, status=201)
@@ -1896,7 +1907,9 @@ class GroundApplyViewSet(ModelViewSet):
         date = request.data['date']  # "2022-04-20"
         date = _to_standard_date(date)
         begin_time = request.data['begin_time']  # 10
+        begin_time = int(begin_time)
         end_time = request.data['end_time']  # 12
+        end_time = int(end_time)
         file = request.data['file']
 
         apply = GroundApply.objects.get(id=apply_id)
@@ -1972,7 +1985,8 @@ class GroundApplyViewSet(ModelViewSet):
 
         # 入库校验
         serializer = GroundApplySerializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid(raise_exception=False):
+            return Response(data={"msg": "预约场地冲突"}, status=201)
         serializer.save()
 
         # 将原预约设为已失效

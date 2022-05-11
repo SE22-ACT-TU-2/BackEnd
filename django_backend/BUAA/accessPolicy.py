@@ -6,7 +6,6 @@ from rest_access_policy import AccessPolicy
 class WXUserAccessPolicy(AccessPolicy):
     statements = [
         {
-            "action": ["list", "destroy", "search_user"],
             "action": ["list", "destroy", "search_user", "blackList", "blackList_out", "black_search", "mul_update",
                        "sig_update"],
             "principal": "*",
@@ -14,7 +13,7 @@ class WXUserAccessPolicy(AccessPolicy):
             "condition": "is_super_user"
         },
         {
-            "action": ["retrieve", "get_boya_followers", "recharge"],
+            "action": ["retrieve", "get_boya_followers", "recharge", "hmb_test"],
             "principal": "*",
             "effect": "allow",
         },

@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from BUAA.views import *
+from BUAA.view_hmb import *
 from BUAA.superUser import *
 from django.urls import re_path as url
 from rest_framework.documentation import include_docs_urls
@@ -210,6 +211,8 @@ urlpatterns = [
             ActivityViewSet.as_view({"get": "get_org_act_status"})),
         url(r'^blocks/activities/status/(?P<block_id>\d+)/$', ActivityViewSet.as_view({"get": "get_block_act_status"})),
 
+        ###############################################################################################
+
         # 用户端（新）
         # 钱包
         url(r'^users/wallet/(?P<pk>\d+)/$', WXUserViewSet.as_view({"get": "get_wallet"})),  # 查询余额
@@ -224,6 +227,10 @@ urlpatterns = [
         # 用户审核
         url(r'^users/verify/(?P<pk>\w+)/$', UserVerifyViewSet.as_view({"get": "if_verified"})),  # 查看认证信息
         url(r'^users/verify/', ImageUploadViewSet.as_view({"post": "verify"})),  # 认证
+        # view_hmb
+        url(r'^hmb_test/$', HMBTestViewSet.as_view({"get": "hmb_test"})),
+
+        ###############################################################################################
 
         # 管理端（新）
         url(r'^users/blackList/$', WXUserViewSet.as_view({"get": "blackList"})),  # 黑名单列表
@@ -238,7 +245,8 @@ urlpatterns = [
         # 场地管理
         url(r'^web/ground/$', GroundViewSet.as_view({"get": "ground_list"})),  # 场地列表
         url(r'^web/ground/add_ground/$', GroundViewSet.as_view({"post": "add_ground"})),  # 添加场地
-        url(r'^web/ground/(?P<pk>\d+)/$', GroundViewSet.as_view({"put": "ground_update", "delete": "ground_delete", "get": "ground_msg"})),
+        url(r'^web/ground/(?P<pk>\d+)/$',
+            GroundViewSet.as_view({"put": "ground_update", "delete": "ground_delete", "get": "ground_msg"})),
         url(r'^web/ground/mul/$', GroundViewSet.as_view({"post": "ground_mul_price"})),
         url(r'^web/ground/check/$', GroundApplyViewSet.as_view({"post": "ground_check"})),  # 场地使用情况查询
         url(r'^web/ground_verify/$', GroundApplyViewSet.as_view({"get": "groundVerify_list"})),  # 场地审核列表
