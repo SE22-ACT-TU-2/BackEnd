@@ -1667,8 +1667,6 @@ class UserVerifyViewSet(ModelViewSet):
 
     # 认证（用户端）
     def verify(self, request):
-        print("111111111111111")
-        print(request)
         image = request.POST["picture"]
         user_id = request.data['user_id']
         name = request.data['name']
@@ -1823,7 +1821,8 @@ class GroundApplyViewSet(ModelViewSet):
             批量预约检查点：
             1.违约次数
             2.余额
-            3.入库校验
+            3.批量之中的冲突
+            4.入库校验
             影响：
             1.增加一条预约，必然需要审核（state=1）
             2.扣钱
@@ -1874,6 +1873,7 @@ class GroundApplyViewSet(ModelViewSet):
                     "identity": identity,
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
+                    "apply_time": datetime.datetime.now(),
                 }
                 res = {
                     "msg": "预约成功"
@@ -1889,6 +1889,7 @@ class GroundApplyViewSet(ModelViewSet):
                     "identity": identity,
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
+                    "apply_time": datetime.datetime.now(),
                     "file": file
                 }
                 res = {
@@ -1906,9 +1907,12 @@ class GroundApplyViewSet(ModelViewSet):
 
         # 批量预约，必须审核，需要检查余额，不需要检查预约时长，预约提交时间设为相同
         else:
+            if not file:
+                return Response(data={"msg": "预约理由不能为空"}, status=201)
             # 检查余额，先检查场地是否空余（和普通预约不同，这一步和入库需要分开）
             price = 0
             serializer_list = []
+            flags = {}
             for ground_time in ground_times:
                 ground_id = ground_time['ground_id']
                 date = ground_time['date']  # "2022-04-20"
@@ -1926,12 +1930,26 @@ class GroundApplyViewSet(ModelViewSet):
                     "identity": identity,
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
+                    "apply_time": datetime.datetime.now(),
                     "file": file
                 }
                 serializer = GroundApplySerializer(data=data)
                 if not serializer.is_valid(raise_exception=False):
                     return Response(data={"msg": "预约场地冲突"}, status=201)
                 serializer_list.append(serializer)
+                # 检查同一批预约内是否有冲突
+                hour_set = set()
+                hour_set.update(range(begin_time, end_time))  # 8-10 ===> {8,9}
+                if flags.get(ground_id) is None:
+                    flags[ground_id] = {date: hour_set}
+                elif flags.get(ground_id).get(date) is None:
+                    flags[ground_id][date] = hour_set
+                else:
+                    if not flags.get(ground_id).get(date).intersection(hour_set):
+                        flags.get(ground_id).get(date).update(hour_set)
+                    else:
+                        return Response(data={"msg": "批量预约内部冲突"}, status=201)
+                #
             if pre_money < price:
                 return Response(data={"msg": "余额不足，预约失败"}, status=201)
 
@@ -1943,7 +1961,7 @@ class GroundApplyViewSet(ModelViewSet):
             # 设定预约提交时间为相同
             apply_time = applies[0].apply_time
             for apply in applies:
-                apply.apply_time = apply_time
+                GroundApply.objects.filter(id=apply.id).update(apply_time=apply_time)
 
             # 扣钱
             WXUser.objects.filter(id=user_id).update(money=pre_money - price)
@@ -2034,6 +2052,8 @@ class GroundApplyViewSet(ModelViewSet):
                 "msg": "改期成功"
             }
         else:
+            if not file:
+                return Response(data={"msg": "改期理由不能为空"}, status=201)
             data = {
                 "state": 1,
                 "feedback": "改期审核中",
