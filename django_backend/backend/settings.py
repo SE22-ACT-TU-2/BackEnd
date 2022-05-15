@@ -269,7 +269,15 @@ SECRET = '11d0e0713ebf937ef5f6519de09f26f6'
 
 CRONJOBS = [
     # ('0 */2 * * *', 'BUAA.scheduled.get_access_token', '>>/home/get_access_token.log'),
-    ('*/1 * * * *', 'BUAA.scheduled.get_boya', '>>/home/get_boya.log'),
+    ('*/1 * * * *', 'BUAA.scheduled.get_boya', '>>/root/BackEnd/django_backend/logs/get_boya.log'),
+    ('30 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 * * *', 'BUAA.scheduled.remind_ground_apply',
+     '>>/root/BackEnd/django_backend/logs/remind_ground_apply.log'),
+    # ('*/3 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 * * *', 'BUAA.scheduled.remind_ground_apply',
+    #  '>>/root/BackEnd/django_backend/logs/remind_ground_apply.log'),
+    ('1 9,10,11,12,13,14,15,16,17,18,19,20,21,22 * * *', 'BUAA.scheduled.expire_ground_apply',
+     '>>/root/BackEnd/django_backend/logs/expire_ground_apply.log')
+    # ('*/3 9,10,11,12,13,14,15,16,17,18,19,20,21,22 * * *', 'BUAA.scheduled.expire_ground_apply',
+    #  '>>/root/BackEnd/django_backend/logs/expire_ground_apply.log')
 ]
 
 cur_path = os.path.dirname(os.path.realpath(__file__))  # log_path是存放日志的路径

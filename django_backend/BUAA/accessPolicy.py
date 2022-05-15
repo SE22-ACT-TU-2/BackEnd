@@ -7,7 +7,7 @@ class WXUserAccessPolicy(AccessPolicy):
     statements = [
         {
             "action": ["list", "destroy", "search_user", "blackList", "blackList_out", "black_search", "mul_update",
-                       "sig_update"],
+                       "sig_update", "log_list", "log_search"],
             "principal": "*",
             "effect": "allow",
             "condition": "is_super_user"

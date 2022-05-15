@@ -257,7 +257,8 @@ urlpatterns = [
             GroundApplyViewSet.as_view({"delete": "groundApply_delete", "put": "groundApply_update"})),
         url(r'^web/ground_apply/search/$', GroundApplyViewSet.as_view({"post": "search_apply"})),  # 查询
         url(r'^web/ground_verify/search/$', GroundApplyViewSet.as_view({"post": "search_verify"})),  # 查询
-
+        url(r'^web/admin_log/$', WXUserViewSet.as_view({"get": "log_list"})),  # 0513
+        url(r'^web/admin_log/time_search/$', WXUserViewSet.as_view({"post": "log_search"})),  # 0515
     ]))
 
 ]

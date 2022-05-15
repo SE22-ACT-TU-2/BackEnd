@@ -4,6 +4,7 @@ from email.header import Header
 from email.utils import formataddr
 from itsdangerous.jws import TimedJSONWebSignatureSerializer as TJWSSerializer
 from django.conf import settings
+
 try:
     import BUAA.models as models
     import BUAA.serializers as serializers
@@ -25,6 +26,7 @@ sender = mail_user  # 发件邮箱，如xxxxxx@qq.com
 
 access_token_path = "/root/access_token.txt"
 
+
 def get_access_token():
     def get_from_wx_api():
         appid = settings.APPID
@@ -36,26 +38,28 @@ def get_access_token():
             print(time.time(), file=f)
             print(response["expires_in"], file=f)
         return response["access_token"]
-    
+
     if not os.path.exists(access_token_path):
         return get_from_wx_api()
-    
+
     with open(access_token_path) as f:
         lines = f.readlines()
         if time.time() - int(lines[1].strip()) > int(lines[2].strip()):
             return get_from_wx_api()
         return lines[0].strip()
 
+
 # Notification part
 def get_notif_content(type_, **kwargs):
     act = kwargs['act_name'] if 'act_name' in kwargs else ''
     org = kwargs['org_name'] if 'org_name' in kwargs else ''
+    ground_apply = kwargs['ground_apply'] if 'ground_apply' in kwargs else ''
     user = kwargs['user_name'] if 'user_name' in kwargs else ''
     comment = kwargs['comment'] if 'comment' in kwargs else ''
     status = kwargs['status'] if 'status' in kwargs else False
 
     content = ''
-    if type_== NOTIF.ActContent:
+    if type_ == NOTIF.ActContent:
         content = f"您参与的活动\'{act}\'内容发生了改变，请及时查看"
     elif type_ == NOTIF.ActCancel:
         content = f"您参与的活动\'{act}\'已被取消"
@@ -78,22 +82,28 @@ def get_notif_content(type_, **kwargs):
         content = f"您成为\'{org}\'组织的管理员"
     elif type_ == NOTIF.RemovalFromAdmin:
         content = f"您被\'{org}\'组织的负责人移除了管理员身份"
+    elif type_ == NOTIF.GroundApplyReminder:
+        content = f"您预约的场地\'{ground_apply}\'还有半小时生效，请及时入场"
 
-    return content+'\n'
+    return content + '\n'
 
 
 def push_all_notif(user_id, ws):
+    print("push_all_notif to user_id:", end='')
+    print(user_id)
     """revoke when user gets online"""
     unread_send_notifs = models.SentNotif.objects.filter(person=user_id, already_read=False)
-    unread_notifs = list(map(lambda x: serializers.NotificationSerializer(x.notif).data ,unread_send_notifs))
+    unread_notifs = list(map(lambda x: serializers.NotificationSerializer(x.notif).data, unread_send_notifs))
     ws.send(json.dumps(unread_notifs, ensure_ascii=False))
     # unread_send_notifs.update(already_read = True)
+
 
 def get_all_user_with_notif():
     """return a id list where the user corresponding with the id has unread notification"""
     unread_send_notifs = models.SentNotif.objects.filter(already_read=False)
-    unread_user = set(map(lambda x : int(x.person.id), unread_send_notifs))
+    unread_user = set(map(lambda x: int(x.person.id), unread_send_notifs))
     return unread_user
+
 
 class MailSender:
     def __init__(self):
@@ -111,7 +121,7 @@ class MailSender:
         subject = title  # 主题
         message['Subject'] = Header(subject, 'utf-8')
         try:
-            #print("中文测试")
+            # print("中文测试")
             print('ready to send email to ' + receiver)
             smtpObj = SMTP()
             smtpObj.connect(self.mail_host, 25)  # 25 为 SMTP 端口号
@@ -150,6 +160,7 @@ def decode_openid(token, ex):
     # 3, 返回加密结果
     return openid
 
+
 import traceback
 import logging
 from django.utils.deprecation import MiddlewareMixin
@@ -157,15 +168,16 @@ from django.utils.deprecation import MiddlewareMixin
 logger = logging.getLogger('default')
 logger2 = logging.getLogger('django.server')
 
+
 class ExceptionLoggingMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         import traceback
-        #with open("/root/test.txt", "w") as f:
+        # with open("/root/test.txt", "w") as f:
         #    f.write(traceback.format_exc())
         logger.error(traceback.format_exc())
         logger2.error(traceback.format_exc())
 
+
 if __name__ == "__main__":
-    a=MailSender()
-    a.send_mail("asdaf","ASdasdasd", "847791804@qq.com")
-    
+    a = MailSender()
+    a.send_mail("asdaf", "ASdasdasd", "2209334160@qq.com")

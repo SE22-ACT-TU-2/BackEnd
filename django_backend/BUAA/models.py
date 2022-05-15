@@ -181,6 +181,7 @@ class Notification(models.Model):
     content = models.CharField(max_length=500, blank=False, verbose_name="通知内容")
     act = models.ForeignKey('Activity', null=True, on_delete=models.CASCADE, verbose_name="活动")
     org = models.ForeignKey('Organization', null=True, on_delete=models.CASCADE, verbose_name="组织")
+    ground = models.ForeignKey('Ground', null=True, on_delete=models.CASCADE, verbose_name="场地")
 
 
 # 发送通知

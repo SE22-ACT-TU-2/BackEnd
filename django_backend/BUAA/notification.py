@@ -17,7 +17,7 @@ class NotificationConsumer(WebsocketConsumer):
         客户端请求链接之后自动触发
         :param message: 消息数据
         """
-        # print('请求链接')
+        print('请求链接')
         self.accept()  # 建立链接
         self.user_id = int(self.scope["url_route"]["kwargs"]["user_id"])
         if self.user_id == -1: return

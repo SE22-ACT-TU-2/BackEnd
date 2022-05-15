@@ -9,6 +9,8 @@ class NOTIF:
     BecomeAdmin = 8
     RemovalFromAdmin = 9
     ActCommentModified = 10
+    GroundApplyReminder = 11
+
 
 NOTIF_TYPE_CHOICES = {
     (NOTIF.ActContent, '参与的活动的内容变更通知'),
@@ -21,13 +23,16 @@ NOTIF_TYPE_CHOICES = {
     (NOTIF.BecomeOwner, '被转让为负责人通知'),
     (NOTIF.BecomeAdmin, '被设置为管理员通知'),
     (NOTIF.RemovalFromAdmin, '被移出管理员通知'),
+    (NOTIF.GroundApplyReminder, '场地预约提醒通知')
 }
 
-NOTIF_TYPE_DICT = {k[0] : k[1] for k in NOTIF_TYPE_CHOICES}
+NOTIF_TYPE_DICT = {k[0]: k[1] for k in NOTIF_TYPE_CHOICES}
+
 
 class BLOCKID:
     BOYA = 2
     PERSONAL = 5
+
 
 class APPLY:
     MAX_TIME = 2

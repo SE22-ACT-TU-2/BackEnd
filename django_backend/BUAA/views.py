@@ -177,6 +177,21 @@ def send_new_boya_notf(data):
     # return receivers
 
 
+def send_ground_apply_notif(applies):
+    for apply in applies:
+        user_id = apply.user_id.id
+        ground_id = apply.ground_id.id
+        begin_time = apply.begin_time
+        end_time = apply.end_time
+        ground_name = Ground.objects.get(id=ground_id).name
+        string = ground_name + ": " + begin_time.strftime("%Y-%m-%d %H:%M") + " ~ " + end_time.strftime(
+            "%Y-%m-%d %H:%M")
+        content = utils.get_notif_content(NOTIF.GroundApplyReminder, ground_apply=string)
+        notif = new_notification(NOTIF.GroundApplyReminder, content, ground_id=ground_id)
+        receivers = [user_id]
+        _create_notif_for_all(receivers, notif)
+
+
 """
 新建通知
 
@@ -190,7 +205,7 @@ def send_new_boya_notf(data):
 """
 
 
-def new_notification(type, content, act_id=None, org_id=None):
+def new_notification(type, content, act_id=None, org_id=None, ground_id=None):
     data = {
         'type': type,
         'content': content,
@@ -199,6 +214,8 @@ def new_notification(type, content, act_id=None, org_id=None):
         data['act'] = act_id
     if org_id:
         data['org'] = org_id
+    if ground_id:
+        data['ground'] = ground_id
     serializer = NotificationSerializer(data=data)
     serializer.is_valid()
     serializer.save()
@@ -554,6 +571,9 @@ class WXUserViewSet(ModelViewSet):
     def blackList_out(self, request, pk):
         WXUser.objects.filter(id=pk, defaults_number__gt=3).update(defaults_number=3)
         users = WXUser.objects.filter(id=pk)
+        admin_name = request.user
+        content = str(admin_name) + ": 将id为“" + str(pk) + "”的用户移除了黑名单"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         return self.paginate(users)
 
     # 用户列表批量修改（管理端）
@@ -569,6 +589,9 @@ class WXUserViewSet(ModelViewSet):
         else:
             WXUser.objects.filter(id=pk).update(defaults_number=defaults_number)
         users = WXUser.objects.filter(id=pk)
+        admin_name = request.user
+        content = str(admin_name) + ": 批量修改了用户的违约次数"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         return self.paginate(users)
 
     # 用户列表单独修改（管理端）
@@ -583,6 +606,9 @@ class WXUserViewSet(ModelViewSet):
         if (defaults_number != None):
             WXUser.objects.filter(id=pk).update(defaults_number=defaults_number)
         users = WXUser.objects.filter(id=pk)
+        admin_name = request.user
+        content = str(admin_name) + ": 修改了id为“" + str(pk) + "”的用户信息"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         return self.paginate(users)
 
     # 黑名单查询（管理端）
@@ -590,6 +616,44 @@ class WXUserViewSet(ModelViewSet):
         name = request.data.get("name")
         users = WXUser.objects.filter(name__contains=name, defaults_number__gt=2)
         return self.paginate(users)
+
+    # 管理员日志
+    def log_list(self, request):
+        logs = Log.objects.all()  # 0509
+        log_list = []
+        for log in logs:
+            name = log.content.split(': ')[0]
+            content = log.content.split(': ')[1]
+            res = {
+                "id": log.id,
+                "name": name,
+                "operation": content,
+                "time": log.pub_time
+            }
+            log_list.append(res)
+        return Response(log_list)
+
+    # 日志查询
+    def log_search(self, request):
+        begin_day = request.data.get("begin_day")
+        end_day = request.data.get("end_day")
+        begin_time = begin_day + " 00:00:00"
+        end_time = end_day + " 00:00:00"
+        begin_time = datetime.datetime.strptime(begin_time, '%Y-%m-%d %H:%M:%S')
+        end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+        logs = Log.objects.filter(pub_time__gte=begin_time, pub_time__lte=end_time)  # 0509
+        log_list = []
+        for log in logs:
+            name = log.content.split(': ')[0]
+            content = log.content.split(': ')[1]
+            res = {
+                "id": log.id,
+                "name": name,
+                "operation": content,
+                "time": log.pub_time
+            }
+            log_list.append(res)
+        return Response(log_list)
 
 
 # 版块
@@ -1569,6 +1633,9 @@ class UserVerifyViewSet(ModelViewSet):
         res = {
             "detail": '审核完毕'
         }
+        admin_name = request.user
+        content = str(admin_name) + ": 审核了id为“" + str(pk) + "”的用户审核"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         UserVerify.objects.filter(id=pk).delete()
         return Response(res)
 
@@ -2182,12 +2249,18 @@ class GroundApplyViewSet(ModelViewSet):
             res = {
                 "detail": "审核成功"
             }
+            admin_name = request.user
+            content = str(admin_name) + ": 通过了id为“" + str(pk) + "”的场地申请审核“"  # 0513
+            Log.objects.create(content=content, pub_time=datetime.datetime.now())
             return Response(res)
         GroundApply.objects.filter(apply_time=time0).update(state=2, feedback=feedback)
         WXUser.objects.filter(id=user_id).update(money=now_money)
         res = {
             "detail": "审核成功"
         }
+        admin_name = request.user
+        content = str(admin_name) + ": 驳回了id为“" + str(pk) + "”的场地申请审核"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         return Response(res)
 
     def groundApply_list(self, request):
@@ -2286,6 +2359,7 @@ class GroundApplyViewSet(ModelViewSet):
     # 预约改期(web)
     def groundApply_update(self, request, pk):
         from datetime import datetime
+        admin_name = request.user
         apply = GroundApply.objects.get(id=pk)
         state = apply.state
         # date = request.data['date']  # "2022-04-20"
@@ -2349,6 +2423,9 @@ class GroundApplyViewSet(ModelViewSet):
                 res = {
                     "detail": "改期成功"
                 }
+                content = str(admin_name) + ": 改期了id为“" + str(pk) + "”的预约, 新信息为--新的场地id为“" + str(
+                    gd.id) + "”, 时间为“" + str(begin_time) + " to " + str(end_time) + "”"  # 0513
+                Log.objects.create(content=content, pub_time=datetime.now())
                 return Response(res)
         res = {
             "detail": "该时段没有空余场地"
@@ -2461,6 +2538,7 @@ class GroundViewSet(ModelViewSet):
     # 添加场地（web）
     def add_ground(self, request):
         from datetime import datetime
+        admin_name = request.user
         name = request.data.get("name")
         area = request.data.get("area")
         price = request.data.get("price")
@@ -2574,11 +2652,14 @@ class GroundViewSet(ModelViewSet):
         grounds = Ground.objects.filter(name=name, area=area, price=price, apply_needed=apply_needed,
                                         description=description, avatar=avatar, begin_time=begin_time1,
                                         end_time=end_time1, administrator_id=administrator, code=ground_code)
+        content = str(admin_name) + ": 新建了一个名叫“" + name + "”的场地"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.now())
         return self.paginate(grounds)
 
     # 修改场地信息(web)
     def ground_update(self, request, pk):
         from datetime import datetime
+        admin_name = request.user
         name = request.data.get("name")
         area = request.data.get("area")
         price = request.data.get("price")
@@ -2602,14 +2683,20 @@ class GroundViewSet(ModelViewSet):
                                             description=description, avatar=avatar, begin_time=begin_time1,
                                             end_time=end_time1, administrator_id=administrator)
         grounds = Ground.objects.filter(id=pk)
+        content = str(admin_name) + ": 修改了场地id为“" + str(pk) + "”, 场地名为“" + name + "”的场地信息"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.now())
         return self.paginate(grounds)
 
     # 删除场地（web）
     def ground_delete(self, request, pk):
+        admin_name = request.user
+        name = Ground.objects.get(id=pk).name
         Ground.objects.filter(id=pk).delete()
         res = {
             "detail": '删除成功'
         }
+        content = str(admin_name) + ": 删除了场地id为“" + str(pk) + "”, 场地名为“" + name + "”的场地"  # 0513
+        Log.objects.create(content=content, pub_time=datetime.datetime.now())
         return Response(res)
 
     # 获取指定区域里的所有场地
@@ -2634,12 +2721,16 @@ class GroundViewSet(ModelViewSet):
             res = {
                 "detail": "修改成功"
             }
+            content = str(admin_name) + ": 修改了所有场地的价格为--" + str(new_price)  # 0513
+            Log.objects.create(content=content, pub_time=datetime.datetime.now())
             return Response(res)
         if admin_type == "ground":
             Ground.objects.filter(area=area, administrator_id=admin_id).update(price=new_price)
             res = {
                 "detail": "修改成功"
             }
+            content = str(admin_name) + ": 修改了所管理的场地的价格为--" + str(new_price)  # 0513
+            Log.objects.create(content=content, pub_time=datetime.datetime.now())
             return Response(res)
         res = {
             "detail": "管理员权限错误"
