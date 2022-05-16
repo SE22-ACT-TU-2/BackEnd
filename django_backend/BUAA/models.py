@@ -230,6 +230,7 @@ class GroundApply(models.Model):
     identity = models.SmallIntegerField(choices=IDENTITY, default=0, verbose_name="申请者身份")
     # apply_group = models.SmallIntegerField(default=0, verbose_name="预约组号")
     apply_time = models.DateTimeField(verbose_name="申请提交的时间，同批次都相同", default=datetime.now())
+    price = models.FloatField(verbose_name="实际价格", default=0)
 
 
 # 审核用户

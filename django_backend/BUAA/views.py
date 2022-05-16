@@ -1854,7 +1854,8 @@ class GroundApplyViewSet(ModelViewSet):
             apply_needed = Ground.objects.get(id=ground_id).apply_needed
 
             # 检查余额
-            price = _get_price_hour(ground_id, begin_time, end_time)
+            raw_price = _get_price_hour(ground_id, begin_time, end_time)
+            price = raw_price * APPLY.DISCOUNT if _is_csstd(user_id) else raw_price
             if pre_money < price:
                 return Response(data={"msg": "余额不足，预约失败"}, status=201)
 
@@ -1874,6 +1875,7 @@ class GroundApplyViewSet(ModelViewSet):
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
                     "apply_time": datetime.datetime.now(),
+                    "price": price,
                 }
                 res = {
                     "msg": "预约成功"
@@ -1890,7 +1892,8 @@ class GroundApplyViewSet(ModelViewSet):
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
                     "apply_time": datetime.datetime.now(),
-                    "file": file
+                    "file": file,
+                    "price": price,
                 }
                 res = {
                     "msg": "已提交申请，等待审核"
@@ -1911,6 +1914,7 @@ class GroundApplyViewSet(ModelViewSet):
                 return Response(data={"msg": "预约理由不能为空"}, status=201)
             # 检查余额，先检查场地是否空余（和普通预约不同，这一步和入库需要分开）
             price = 0
+            discount = APPLY.DISCOUNT if _is_csstd(user_id) else 1
             serializer_list = []
             flags = {}
             for ground_time in ground_times:
@@ -1921,7 +1925,8 @@ class GroundApplyViewSet(ModelViewSet):
                 begin_time = int(begin_time)
                 end_time = ground_time['end_time']  # 17
                 end_time = int(end_time)
-                price = price + _get_price_hour(ground_id, begin_time, end_time)
+                single_price = _get_price_hour(ground_id, begin_time, end_time) * discount
+                price = price + single_price
                 data = {
                     "state": 1,
                     "feedback": "审核中",
@@ -1931,7 +1936,8 @@ class GroundApplyViewSet(ModelViewSet):
                     "begin_time": _to_datetime(date, begin_time),
                     "end_time": _to_datetime(date, end_time),
                     "apply_time": datetime.datetime.now(),
-                    "file": file
+                    "file": file,
+                    "price": single_price,
                 }
                 serializer = GroundApplySerializer(data=data)
                 if not serializer.is_valid(raise_exception=False):
@@ -2007,9 +2013,10 @@ class GroundApplyViewSet(ModelViewSet):
         old_date = _get_date(old_begin_time)
         identity = apply.identity
         old_apply_time = apply.apply_time
-        old_price = _get_price(ground_id, old_begin_time, old_end_time)
+        old_price = apply.price
         pre_money = _user_id2user_money(user_id)
-        new_price = _get_price_hour(ground_id, begin_time, end_time)
+        discount = APPLY.DISCOUNT if _is_csstd(user_id) else 1
+        new_price = _get_price_hour(ground_id, begin_time, end_time) * discount
 
         # 检查是否已失效
         if state == 2:
@@ -2108,7 +2115,7 @@ class GroundApplyViewSet(ModelViewSet):
         ground_id = apply.ground_id.id
         begin_time = apply.begin_time
         end_time = apply.end_time
-        price = _get_price(ground_id, begin_time, end_time)
+        price = apply.price
         pre_money = _user_id2user_money(user_id)
         pre_defaults_number = WXUser.objects.get(id=user_id).defaults_number
         GroundApply.objects.filter(id=apply_id).update(state=2, feedback="已取消")

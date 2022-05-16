@@ -37,3 +37,4 @@ class BLOCKID:
 class APPLY:
     MAX_TIME = 2
     MAX_DEFAULT = 3
+    DISCOUNT = 0.9
