@@ -15,14 +15,13 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from BUAA import notification
 
-
 application = ProtocolTypeRouter({
 
-    'websocket' : AllowedHostsOriginValidator(
+    'websocket': AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             URLRouter([
                 url(r'^ws/link/(?P<user_id>\d+)/$', notification.NotificationConsumer),
-
+                url(r'^ws/message/(?P<user_id>\d+)/$', notification.MessageConsumer),
                 # url(r'^ws/link/1/$', notification.NotificationConsumer),
             ])
         )

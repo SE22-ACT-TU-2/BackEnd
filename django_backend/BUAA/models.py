@@ -241,3 +241,13 @@ class UserVerify(models.Model):
     student_number = models.CharField(max_length=20, verbose_name="学号")
     student_id = models.CharField(max_length=20, default="-1", verbose_name="学号")  # 2022-4-16 whl修改
     avatar = models.CharField(max_length=500, verbose_name="校园卡图片")
+
+
+# 聊天消息
+class Message(models.Model):
+    objects = models.Manager()
+    from_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="发送方id")
+    to_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="接收方id")
+    content = models.TextField(null=False, verbose_name="消息内容")
+    is_read = models.BooleanField(default=False, verbose_name="是否已读")
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name="消息发送时间")

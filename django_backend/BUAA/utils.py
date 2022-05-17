@@ -105,6 +105,35 @@ def get_all_user_with_notif():
     return unread_user
 
 
+def push_all_message(user_id, ws):
+    unread_messages = models.Message.objects.filter(to_user_id=user_id, is_read=False)
+    data = list(map(lambda x: serializers.MessageSerializer(x).data, unread_messages))
+    ws.send(json.dumps(data, ensure_ascii=False))
+
+
+def save_and_send_message(from_user_id, to_user_id, message, ws):
+    message_data = {
+        "from_user": from_user_id,
+        "to_user": to_user_id,
+        "content": message
+    }
+    serializer = serializers.MessageSerializer(data=message_data)
+    if not serializer.is_valid(raise_exception=False):
+        return False
+    message_object = serializer.save()
+    if ws is not None:
+        ws.send(json.dumps(serializers.MessageSerializer(instance=message_object).data, ensure_ascii=False))
+    return True
+
+def receive_message(message_id):
+    try:
+        message = models.Message.objects.get(id=message_id)
+    except:
+        return False
+    message.delete()
+    return True
+
+
 class MailSender:
     def __init__(self):
         self.mail_host = mail_host  # 设置SMTP服务器，如smtp.qq.com

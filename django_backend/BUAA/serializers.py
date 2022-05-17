@@ -410,6 +410,7 @@ class GroundSerializer(ModelSerializer):
 
 class GroundApplySerializer(ModelSerializer):
     """场地申请序列化器"""
+
     # ground_id = GroundSerializer()
     # user_id = WXUserSerializer()
 
@@ -442,3 +443,9 @@ class GroundApplySerializer(ModelSerializer):
         if error:
             raise ValidationError({'detail': '申请时间段已被预约'})
         return value
+
+
+class MessageSerializer(ModelSerializer):
+    class Meta:
+        model = Message
+        fields = "__all__"
