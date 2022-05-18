@@ -89,7 +89,7 @@ class MessageConsumer(WebsocketConsumer):
         print("聊天功能，建立连接成功，user_id=", end='')
         print(user_id)
         # 推送所有未读消息
-        utils.push_all_message(self.user_id, self)
+        utils.push_all_messages(self.user_id, self)
 
     def disconnect(self, code):
         if self.user_id in chat_clients:
@@ -111,17 +111,25 @@ class MessageConsumer(WebsocketConsumer):
             ws = chat_clients.get(to_user_id, None)
             if not utils.save_and_send_message(from_user_id, to_user_id, message, ws):
                 print("utils.save_and_send_message失败")
+            res = {"type": "send_message_success"}
+            self.send(json.dumps(res, ensure_ascii=False))
         elif request_type == 'receive_message':
-            message_id = data.get('message_id', '')
-            if not utils.receive_message(message_id):
+            message_ids = data.get('message_ids', '')
+            if not utils.receive_message(message_ids):
                 print("utils.receive_message失败")
             print("接收消息，user_id:", end='')
             print(self.user_id, end='，')
-            print("message_id:", end='')
-            print(message_id)
+            print("message_ids:", end='')
+            print(message_ids)
         elif request_type == 'chat_robot':
-            ret_answer = {"robot": chat_robot(data.get('message'))}
-            self.send(json.dumps(ret_answer))
+            ret_answer = {
+                "type": "chat_robot_reply",
+                "message": chat_robot(data.get('message'))
+            }
+            self.send(json.dumps(ret_answer, ensure_ascii=False))
+        elif request_type == 'ping':
+            res = {"type": "pong"}
+            self.send(json.dumps(res, ensure_ascii=False))
         else:
             print("request_type错误，data=", end='')
             print(data)

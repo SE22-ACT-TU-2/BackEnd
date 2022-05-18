@@ -105,10 +105,14 @@ def get_all_user_with_notif():
     return unread_user
 
 
-def push_all_message(user_id, ws):
+def push_all_messages(user_id, ws):
     unread_messages = models.Message.objects.filter(to_user_id=user_id, is_read=False)
     data = list(map(lambda x: serializers.MessageSerializer(x).data, unread_messages))
-    ws.send(json.dumps(data, ensure_ascii=False))
+    res = {
+        "type": "ws_connected",
+        "messages": data
+    }
+    ws.send(json.dumps(res, ensure_ascii=False))
 
 
 def save_and_send_message(from_user_id, to_user_id, message, ws):
@@ -122,15 +126,23 @@ def save_and_send_message(from_user_id, to_user_id, message, ws):
         return False
     message_object = serializer.save()
     if ws is not None:
-        ws.send(json.dumps(serializers.MessageSerializer(instance=message_object).data, ensure_ascii=False))
+        res = {
+            "type": "new_message",
+            "message": serializers.MessageSerializer(instance=message_object).data
+        }
+        ws.send(json.dumps(res, ensure_ascii=False))
     return True
 
-def receive_message(message_id):
+
+def receive_message(message_ids):
     try:
-        message = models.Message.objects.get(id=message_id)
+        messages = []
+        for message_id in message_ids:
+            messages.append(models.Message.objects.get(id=message_id))
     except:
         return False
-    message.delete()
+    for message in messages:
+        message.delete()
     return True
 
 
