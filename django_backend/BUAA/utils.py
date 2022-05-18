@@ -115,7 +115,7 @@ def push_all_messages(user_id, ws):
     ws.send(json.dumps(res, ensure_ascii=False))
 
 
-def save_and_send_message(from_user_id, to_user_id, message, ws):
+def save_and_send_message(from_user_id, to_user_id, message, ws, ws_self):
     message_data = {
         "from_user": from_user_id,
         "to_user": to_user_id,
@@ -125,6 +125,7 @@ def save_and_send_message(from_user_id, to_user_id, message, ws):
     if not serializer.is_valid(raise_exception=False):
         return False
     message_object = serializer.save()
+    ws_self.send(json.dumps({"type": "send_message_success"}, ensure_ascii=False))
     if ws is not None:
         res = {
             "type": "new_message",

@@ -115,13 +115,16 @@ supervisorctl restart daphne # 重启daphne，封装成daphne_r
 
 直接使用daphne指令：
 
-在`/root/BackEnd/django_backend`目录下`daphne -p 8002 backend.asgi:application`
+在`/root/BackEnd/django_backend`目录下`daphne -p 8002 backend.asgi:application` 封装成`daphne_ss`
 
-注：用superisor，websocket.log写入好像会变慢
+注：不推荐使用supervisord，使用tmux管理daphne进程，`tmux a -t daphne`进入daphne会话
+
+tmux教程：https://blog.csdn.net/sui_152/article/details/121650341
+
 
 ## 说明
 
-每次修改后端代码，都要重启nginx、uwsgi、daphne，即：`nginx_r`，`uwsgi_r`，`daphne_r`
+每次修改后端代码，都要重启nginx、uwsgi、daphne，即：`nginx_r`，`uwsgi_r`，`tmux a -t daphne`&`Ctrl+C`停止之前的daphne然后`daphne_ss`
 
 ---
 

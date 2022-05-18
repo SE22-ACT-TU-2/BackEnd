@@ -109,10 +109,9 @@ class MessageConsumer(WebsocketConsumer):
             print(" ===> to_user_id:", end='')
             print(to_user_id)
             ws = chat_clients.get(to_user_id, None)
-            if not utils.save_and_send_message(from_user_id, to_user_id, message, ws):
+            if not utils.save_and_send_message(from_user_id, to_user_id, message, ws, self):
                 print("utils.save_and_send_message失败")
-            res = {"type": "send_message_success"}
-            self.send(json.dumps(res, ensure_ascii=False))
+                self.send(json.dumps({"type": "send_message_failed"}, ensure_ascii=False))
         elif request_type == 'receive_message':
             message_ids = data.get('message_ids', '')
             if not utils.receive_message(message_ids):
