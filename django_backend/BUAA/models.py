@@ -251,3 +251,50 @@ class Message(models.Model):
     content = models.TextField(null=False, verbose_name="消息内容")
     is_read = models.BooleanField(default=False, verbose_name="是否已读")
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="消息发送时间")
+
+
+# 帖子
+class Topic(models.Model):
+    objects = models.Manager()
+    user_id = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="用户id")
+    create_time = models.DateTimeField(verbose_name="创建时间", default=datetime.now())
+    content = models.TextField(max_length=65535, verbose_name="帖子内容")
+    click_count = models.IntegerField(verbose_name="点击次数", default=0, validators=[MinValueValidator(1)])
+    comment_count = models.IntegerField(verbose_name="评论次数", default=0, validators=[MinValueValidator(1)])
+    star_count = models.IntegerField(verbose_name="收藏次数", default=0, validators=[MinValueValidator(1)])
+
+
+# 帖子收藏表
+class Star(models.Model):
+    objects = models.Manager()
+    user_id = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="用户id")
+    topic_id = models.ForeignKey('Topic', on_delete=models.CASCADE, verbose_name="帖子id")
+
+
+# 帖子评论
+class TopicComment(models.Model):
+    objects = models.Manager()
+    user_id = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="用户id")
+    topic_id = models.ForeignKey('Topic', on_delete=models.CASCADE, verbose_name="帖子id")
+    content = models.TextField(max_length=65535, verbose_name="帖子内容")
+
+
+# 标签(label)
+class Tag(models.Model):
+    objects = models.Manager()
+    name = models.CharField(max_length=30, verbose_name="标签名")
+
+
+# 关注表
+class Follow(models.Model):
+    objects = models.Manager()
+    person_do = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="谁关注", related_name='person_do')
+    person_done = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="关注谁", related_name='person_done')
+    tag = models.BooleanField(verbose_name="关注或拉黑", default=True)  # 0 代表关注，1 代表拉黑
+
+
+# 帖子的标签表
+class TopicTag(models.Model):
+    objects = models.Manager()
+    topic_id = models.ForeignKey('Topic', on_delete=models.CASCADE, verbose_name="帖子id")
+    tag_id = models.ForeignKey('Tag', on_delete=models.CASCADE, verbose_name="标签id")
