@@ -133,19 +133,22 @@ class TopicViewSet(ModelViewSet):
     def topic_get(self, request):
         tag_id = request.data.get("labelId")
         user_id = request.data.get("userId")
-        topics = Topic.objects.filter(user_id=user_id)
+        topics = Topic.objects.all()
         topic_list = []
         for topic in topics:
             topic_tags = TopicTag.objects.filter(topic_id=topic.id)
             if_have = False
-            for topic_tag in topic_tags:
-                if topic_tag.tag_id.id == tag_id:
-                    if_have = True
+            if tag_id == 0:
+                if_have = True
+            else:
+                for topic_tag in topic_tags:
+                    if topic_tag.tag_id.id == tag_id:
+                        if_have = True
             if if_have:
                 has_star = True
                 has_comment = True
-                comment_len = TopicComment.objects.filter(topic_id=topic.id).__len__()
-                star_len = Star.objects.filter(topic_id=topic.id).__len__()
+                comment_len = TopicComment.objects.filter(topic_id=topic.id, user_id=user_id).__len__()
+                star_len = Star.objects.filter(topic_id=topic.id, user_id=user_id).__len__()
                 if star_len == 0:
                     has_star = False
                 if comment_len == 0:
@@ -226,8 +229,8 @@ class TopicViewSet(ModelViewSet):
         for topic in topics:
             has_star = True
             has_comment = True
-            comment_list = TopicComment.objects.filter(topic_id=topic.id).__len__()
-            star_list = Star.objects.filter(topic_id=topic.id).__len__()
+            comment_list = TopicComment.objects.filter(topic_id=topic.id, user_id=user_id).__len__()
+            star_list = Star.objects.filter(topic_id=topic.id, user_id=user_id).__len__()
             if star_list == 0:
                 has_star = False
             if comment_list == 0:
