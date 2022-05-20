@@ -195,7 +195,7 @@ class TopicViewSet(ModelViewSet):
         return Response(data=res, status=201)
 
     # 收藏/取消收藏帖子
-    def topic_follow(self, request):
+    def topic_star(self, request):
         user_id = request.data.get("userId")
         topic_id = request.data.get("topicId")
         try:
