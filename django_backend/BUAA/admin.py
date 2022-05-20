@@ -20,6 +20,12 @@ admin.site.register(JoinActApplication)
 admin.site.register(UserVerify)
 admin.site.register(Ground)
 admin.site.register(GroundApply)
+admin.site.register(Topic)
+admin.site.register(TopicComment)
+admin.site.register(Star)
+admin.site.register(Tag)
+admin.site.register(Follow)
+admin.site.register(TopicTag)
 
 
 # Register your models here.

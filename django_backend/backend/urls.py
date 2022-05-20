@@ -22,6 +22,8 @@ from django.urls import re_path as url
 from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import SimpleRouter
 
+from BUAA.view_l import *
+
 urlpatterns = [
     path('api/', include([
         path('show/', avoid_fxxking_censorship),
@@ -259,6 +261,17 @@ urlpatterns = [
         url(r'^web/ground_verify/search/$', GroundApplyViewSet.as_view({"post": "search_verify"})),  # 查询
         url(r'^web/admin_log/$', WXUserViewSet.as_view({"get": "log_list"})),  # 0513
         url(r'^web/admin_log/time_search/$', WXUserViewSet.as_view({"post": "log_search"})),  # 0515
+        url(r'^users/topics/$', TopicViewSet.as_view({"get": "topic_list"})),    
+        url(r'^users/topics/delete/(?P<pk>\d+)/$', TopicViewSet.as_view({"get": "topic_delete"})),    
+        url(r'^users/topics/topic_add/$', TopicViewSet.as_view({"post": "topic_add"})),    
+        url(r'^users/topics/detail/(?P<pk>\d+)/$', TopicViewSet.as_view({"get": "topic_detail"})),    
+        url(r'^users/topics/get/$', TopicViewSet.as_view({"post": "topic_get"})),    
+        url(r'^users/topics/comment/$', TopicViewSet.as_view({"post": "comment_creat"})),    
+        url(r'^users/topics/comment/delete/(?P<pk>\d+)/$', TopicViewSet.as_view({"get": "comment_delete"})),    
+        url(r'^users/topics/star/$', TopicViewSet.as_view({"post": "topic_star"})),    
+        url(r'^users/topics/check_others/$', TopicViewSet.as_view({"post": "check_others"})),    
+        url(r'^users/topics/person_follow/$', TopicViewSet.as_view({"post": "person_follow"})),    
+        url(r'^users/topics/tags/$', TopicViewSet.as_view({"get": "tag_list"})),    
     ]))
 
 ]

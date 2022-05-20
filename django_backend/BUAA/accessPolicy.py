@@ -598,3 +598,63 @@ class GroundAccessPolicy(AccessPolicy):
         if not isinstance(request.user, WXUser):
             return False
         return request.user == view.get_object()
+    
+
+class TopicAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": ["topic_list", "topic_delete", "topic_add", "topic_detail", "topic_get", "comment_creat", "comment_delete", "topic_star", "check_others", "person_follow", "tag_list"],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   
+
+
+class TopicCommentAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": [],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   
+
+
+class StarAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": [],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   
+
+
+class TagAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": [],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   
+
+
+class FollowAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": [],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   
+
+
+class TopicTagAccessPolicy(AccessPolicy):   
+    statements = [   
+        {   
+            "action": [],   
+            "principal": "*",   
+            "effect": "allow",   
+        },   
+    ]   

@@ -449,3 +449,51 @@ class MessageSerializer(ModelSerializer):
     class Meta:
         model = Message
         fields = "__all__"
+        
+        
+class TopicSerializer(ModelSerializer):   
+    """帖子序列化器"""   
+
+    class Meta:   
+        model = Topic   
+        fields = "__all__"   
+
+
+class StarSerializer(ModelSerializer):   
+    """收藏序列化器"""   
+
+    class Meta:   
+        model = Star   
+        fields = "__all__"   
+
+
+class TopicCommentSerializer(ModelSerializer):   
+    """帖子评论序列化器"""   
+
+    class Meta:   
+        model = TopicComment   
+        fields = "__all__"   
+
+
+class TagSerializer(ModelSerializer):   
+    """标签序列化器"""   
+
+    class Meta:   
+        model = Tag   
+        fields = "__all__"   
+
+
+class FollowSerializer(ModelSerializer):   
+    """关注序列化器"""   
+
+    class Meta:   
+        model = Follow   
+        fields = "__all__"   
+
+
+class TopicTagSerializer(ModelSerializer):   
+    """帖子和标签序列化器"""   
+
+    class Meta:   
+        model = TopicTag   
+        fields = "__all__"   
