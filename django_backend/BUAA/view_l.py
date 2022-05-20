@@ -77,7 +77,7 @@ class TopicViewSet(ModelViewSet):
         user = WXUser.objects.get(id=user_id)
         content = request.data.get("content")
         Topic.objects.create(create_time=datetime.now(), content=content, click_count=0, comment_count=0,
-                             star_count=0, user_id=user)
+                             star_count=0, user_id_id=user_id)
         res = {
             "msg": "发帖成功"
         }
