@@ -147,6 +147,16 @@ def receive_message(message_ids):
     return True
 
 
+def receive_message_by_id(send_id, receive_id):
+    try:
+        messages = []
+        messages.extend(models.Message.objects.filter(from_user_id=send_id, to_user_id=receive_id))
+    except:
+        return False
+    for message in messages:
+        message.delete()
+    return True
+
 class MailSender:
     def __init__(self):
         self.mail_host = mail_host  # 设置SMTP服务器，如smtp.qq.com

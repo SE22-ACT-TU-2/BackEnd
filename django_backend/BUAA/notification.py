@@ -113,13 +113,20 @@ class MessageConsumer(WebsocketConsumer):
                 print("utils.save_and_send_message失败")
                 self.send(json.dumps({"type": "send_message_failed"}, ensure_ascii=False))
         elif request_type == 'receive_message':
-            message_ids = data.get('message_ids', '')
-            if not utils.receive_message(message_ids):
-                print("utils.receive_message失败")
+            # message_ids = data.get('message_ids', '')
+            # if not utils.receive_message(message_ids):
+            #     print("utils.receive_message失败")
+            # print("接收消息，user_id:", end='')
+            # print(self.user_id, end='，')
+            # print("message_ids:", end='')
+            # print(message_ids)
+            user_id = data.get('user_id', '')
+            if not utils.receive_message_by_id(user_id, self.user_id):
+                print("utils.receive_message_by_id失败")
             print("接收消息，user_id:", end='')
             print(self.user_id, end='，')
-            print("message_ids:", end='')
-            print(message_ids)
+            print("send_user_id:", end='')
+            print(user_id)
         elif request_type == 'chat_robot':
             ret_answer = {
                 "type": "chat_robot_reply",
