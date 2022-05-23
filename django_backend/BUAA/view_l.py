@@ -195,8 +195,8 @@ class TopicViewSet(ModelViewSet):
             }
             return Response(data=res, status=404)
         topic_id = TopicComment.objects.get(id=pk).topic_id
-        comment_count = Topic.objects.get(id=topic_id).comment_count - 1
-        Topic.objects.filter(id=topic_id).update(comment_count=comment_count)
+        comment_count = Topic.objects.get(id=topic_id.id).comment_count - 1
+        Topic.objects.filter(id=topic_id.id).update(comment_count=comment_count)
         TopicComment.objects.filter(id=pk).delete()
         res = {
             "msg": "评论删除成功"
