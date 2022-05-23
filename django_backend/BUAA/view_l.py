@@ -73,11 +73,17 @@ class TopicViewSet(ModelViewSet):
 
     # 发帖
     def topic_add(self, request):
+        labels = request.data.get("labels")
         user_id = request.data.get("userId")
         user = WXUser.objects.get(id=user_id)
         content = request.data.get("content")
-        Topic.objects.create(create_time=datetime.now(), content=content, click_count=0, comment_count=0,
+        topic = Topic.objects.create(create_time=datetime.now(), content=content, click_count=0, comment_count=0,
                              star_count=0, user_id_id=user_id)
+        for label in labels:
+            active = label["active"]
+            tag_id = label["id"]
+            if active:
+                TopicTag.objects.create(tag_id_id=tag_id, topic_id_id=topic.id)
         res = {
             "msg": "发帖成功"
         }
