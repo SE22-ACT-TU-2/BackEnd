@@ -111,7 +111,9 @@ class TopicViewSet(ModelViewSet):
             the_comment = {
                 "userId": topicComment.user_id.id,
                 "user": {"avatar": topicComment.user_id.avatar, "id": topicComment.user_id.id, "nickName": topicComment.user_id.name},
-                "content": topicComment.content
+                "content": topicComment.content,
+                "id": topicComment.id,   
+                "create_time": topicComment.create_time   
             }
             topicComment_list.append(the_comment)
         star_list = []
@@ -127,6 +129,8 @@ class TopicViewSet(ModelViewSet):
             "comments": topicComment_list,
             "stars": star_list
         }
+        click_count = Topic.objects.get(id=pk).click_count + 1   
+        Topic.objects.filter(id=pk).update(click_count=click_count)   
         return Response(res)
 
     # 获取话题
@@ -174,6 +178,8 @@ class TopicViewSet(ModelViewSet):
         topic_id = request.data.get("topicId")
         content = request.data.get("content")
         TopicComment.objects.create(user_id_id=user_id, topic_id_id=topic_id, content=content)
+        comment_count = Topic.objects.get(id=topic_id).comment_count + 1   
+        Topic.objects.filter(id=topic_id).update(comment_count=comment_count)   
         res = {
             "msg": "评论成功"
         }
@@ -189,6 +195,9 @@ class TopicViewSet(ModelViewSet):
             }
             return Response(data=res, status=404)
         TopicComment.objects.filter(id=pk).delete()
+        topic_id = TopicComment.objects.get(id=pk).topic_id   
+        comment_count = Topic.objects.get(id=topic_id).comment_count - 1   
+        Topic.objects.filter(id=topic_id).update(comment_count=comment_count)   
         res = {
             "msg": "评论删除成功"
         }
@@ -202,12 +211,16 @@ class TopicViewSet(ModelViewSet):
             star = Star.objects.get(user_id=user_id, topic_id=topic_id)
         except:
             Star.objects.create(user_id_id=user_id, topic_id_id=topic_id)
+            star_count = Topic.objects.get(id=topic_id).star_count + 1   
+            Topic.objects.filter(id=topic_id).update(star_count=star_count)   
             res = {
                 "msg": "收藏成功"
             }
             return Response(data=res, status=201)
         else:
             Star.objects.filter(user_id=user_id, topic_id=topic_id).delete()
+            star_count = Topic.objects.get(id=topic_id).star_count - 1   
+            Topic.objects.filter(id=topic_id).update(star_count=star_count)   
             res = {
                 "msg": "取消收藏成功"
             }
@@ -254,8 +267,8 @@ class TopicViewSet(ModelViewSet):
                 "nickName": others.name,
                 "has_follow": has_follow,
                 "motto": others.sign,
-                "follower": follower,
-                "following": following
+                 "follower": following,   
+                "following": follower   
             },
             "topics": topic_list
         }
@@ -327,3 +340,37 @@ class TopicViewSet(ModelViewSet):
             }
             tag_list.append(res)
         return Response(tag_list)
+
+    # 关注列表
+    def follow_list(self, request, pk):   
+        follow_list = []
+        followed_list = []
+        friend_list = []
+        follows = Follow.objects.filter(person_do=pk)
+        followeds = Follow.objects.filter(person_done=pk)
+        for follow in follows:
+            the_res = {
+                "user": {"avatar": follow.person_done.avatar, "id": follow.person_done.id,
+                         "nickName": follow.person_done.name}
+            }
+            follow_list.append(the_res)
+        for followed in followeds:
+            the_res = {
+                "user": {"avatar": followed.person_do.avatar, "id": followed.person_do.id,
+                         "nickName": followed.person_do.name}
+            }
+            followed_list.append(the_res)
+        for follow in follows:
+            if_friend = Follow.objects.filter(person_do=follow.person_done, person_done=follow.person_do).__len__()
+            if if_friend != 0:
+                the_res = {
+                    "user": {"avatar": follow.person_done.avatar, "id": follow.person_done.id,
+                             "nickName": follow.person_done.name}
+                }
+                friend_list.append(the_res)
+        res = {
+            "follow": follow_list,
+            "followed": followed_list,
+            "friend": friend_list
+        }
+        return Response(data=res, status=201)

@@ -277,6 +277,7 @@ class TopicComment(models.Model):
     user_id = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="用户id")
     topic_id = models.ForeignKey('Topic', on_delete=models.CASCADE, verbose_name="帖子id")
     content = models.TextField(max_length=65535, verbose_name="帖子内容")
+    create_time = models.DateTimeField(verbose_name="创建时间", default=datetime.now())
 
 
 # 标签(label)
