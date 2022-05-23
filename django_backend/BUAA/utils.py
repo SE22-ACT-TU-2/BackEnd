@@ -127,9 +127,16 @@ def save_and_send_message(from_user_id, to_user_id, message, ws, ws_self):
     message_object = serializer.save()
     ws_self.send(json.dumps({"type": "send_message_success"}, ensure_ascii=False))
     if ws is not None:
+        msg = serializers.MessageSerializer(instance=message_object).data
+        raw_time = msg['created_time']
+        date_ = raw_time.split('T')[0]
+        time_ = raw_time.split('T')[1].split('.')[0]
+        msg['created_time'] = date_ + " " + time_
+        print(msg)
         res = {
             "type": "new_message",
-            "message": serializers.MessageSerializer(instance=message_object).data
+            # "message": serializers.MessageSerializer(instance=message_object).data
+            "message": msg
         }
         ws.send(json.dumps(res, ensure_ascii=False))
     return True
@@ -156,6 +163,7 @@ def receive_message_by_id(send_id, receive_id):
     for message in messages:
         message.delete()
     return True
+
 
 class MailSender:
     def __init__(self):
