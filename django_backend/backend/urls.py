@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from BUAA.views import *
 from BUAA.view_hmb import *
+from BUAA.view_czy import *
 from BUAA.superUser import *
 from django.urls import re_path as url
 from rest_framework.documentation import include_docs_urls
@@ -271,7 +272,17 @@ urlpatterns = [
         url(r'^users/topics/star/$', TopicViewSet.as_view({"post": "topic_star"})),    
         url(r'^users/topics/check_others/$', TopicViewSet.as_view({"post": "check_others"})),    
         url(r'^users/topics/person_follow/$', TopicViewSet.as_view({"post": "person_follow"})),    
-        url(r'^users/topics/tags/$', TopicViewSet.as_view({"get": "tag_list"})),    
+        url(r'^users/topics/tags/$', TopicViewSet.as_view({"get": "tag_list"})),
+
+        # 帖子管理
+        url(r'^web/post/$', TopicWebViewSet.as_view({"get": "get_topic_list"})),
+        url(r'^web/post/search/$', TopicWebViewSet.as_view({"post": "search_topic_by_username"})),
+        url(r'^web/post/(?P<pk>\d+)/$', TopicWebViewSet.as_view({"delete": "topic_delete"})),
+        # 标签管理
+        url(r'^web/tag/$', TagWebViewSet.as_view({"get": "get_tag_list"})),
+        url(r'^web/tag/add_tag/$', TagWebViewSet.as_view({"post": "add_tag"})),
+        url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"put": "update_tag_name"})),
+        url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"delete": "tag_delete"})),
     ]))
 
 ]

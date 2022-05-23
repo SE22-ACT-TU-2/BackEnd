@@ -607,7 +607,25 @@ class TopicAccessPolicy(AccessPolicy):
             "principal": "*",   
             "effect": "allow",   
         },   
-    ]   
+    ]
+
+class TopicWebAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action":["get_topic_list", "search_topic_by_username", "topic_delete"],
+            "principal": "*",
+            "effect": "allow",
+        }
+    ]
+
+class TagWebAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": ["get_tag_list", "add_tag", "update_tag_name", "tag_delete"],
+            "principal": "*",
+            "effect": "allow",
+        }
+    ]
 
 
 class TopicCommentAccessPolicy(AccessPolicy):   
@@ -658,3 +676,5 @@ class TopicTagAccessPolicy(AccessPolicy):
             "effect": "allow",   
         },   
     ]   
+
+# 管理端

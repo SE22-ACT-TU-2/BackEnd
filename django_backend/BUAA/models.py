@@ -246,8 +246,8 @@ class UserVerify(models.Model):
 # 聊天消息
 class Message(models.Model):
     objects = models.Manager()
-    from_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="发送方id")
-    to_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="接收方id")
+    from_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="发送方id", related_name="from_user")
+    to_user = models.ForeignKey('WXUser', on_delete=models.CASCADE, verbose_name="接收方id", related_name="to_user")
     content = models.TextField(null=False, verbose_name="消息内容")
     is_read = models.BooleanField(default=False, verbose_name="是否已读")
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="消息发送时间")
