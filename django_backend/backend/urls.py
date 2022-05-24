@@ -282,8 +282,9 @@ urlpatterns = [
         # 标签管理
         url(r'^web/tag/$', TagWebViewSet.as_view({"get": "get_tag_list"})),
         url(r'^web/tag/add_tag/$', TagWebViewSet.as_view({"post": "add_tag"})),
-        url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"put": "update_tag_name"})),
-        url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"delete": "tag_delete"})),
+        url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"put": "update_tag_name", "delete": "tag_delete", "get": "get_tag"})),
+        # url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"delete": "tag_delete"})),
+        # url(r'^web/tag/(?P<pk>\d+)/$', TagWebViewSet.as_view({"get": "get_tag"})),
     ]))
 
 ]

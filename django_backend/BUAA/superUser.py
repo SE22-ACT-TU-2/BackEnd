@@ -72,9 +72,11 @@ def sudo_login(request):
 
     token = utils.encode_openid(name + passwd, 24 * 60 * 60)
     cache.set(token, name, 24 * 60 * 60)
+    adminType = SuperAdmin.objects.filter(id=ser.data.id).type # 我自己加的
     res = {
         'success': 'true',
         'user': ser.data,
-        'token': token
+        'token': token,
+        'adminType': adminType# 我自己加的
     }
     return HttpResponse(json.dumps(res), content_type='application/json')

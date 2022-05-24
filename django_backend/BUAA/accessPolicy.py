@@ -621,7 +621,7 @@ class TopicWebAccessPolicy(AccessPolicy):
 class TagWebAccessPolicy(AccessPolicy):
     statements = [
         {
-            "action": ["get_tag_list", "add_tag", "update_tag_name", "tag_delete"],
+            "action": ["get_tag_list", "add_tag", "update_tag_name", "tag_delete", "get_tag"],
             "principal": "*",
             "effect": "allow",
         }
