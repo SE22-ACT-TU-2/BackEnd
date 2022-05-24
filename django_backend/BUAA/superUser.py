@@ -67,6 +67,11 @@ def sudo_login(request):
 
         }
         return HttpResponse(json.dumps(res), content_type='application/json')
+    admin_name = name
+    admin = User.objects.get(username=admin_name)
+    admin_id = admin.id
+    buaa_admin = SuperAdmin.objects.get(user_ptr_id=admin_id)
+    admin_type = buaa_admin.type
     auth.login(request, user)
     ser = SuperUserSerializer(user)
 
@@ -75,6 +80,7 @@ def sudo_login(request):
     res = {
         'success': 'true',
         'user': ser.data,
-        'token': token
+        'token': token,
+        'admintype': admin_type
     }
     return HttpResponse(json.dumps(res), content_type='application/json')
