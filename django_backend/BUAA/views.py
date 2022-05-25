@@ -1883,6 +1883,8 @@ class GroundApplyViewSet(ModelViewSet):
 
             # 需要审核
             else:
+                if not file:
+                    return Response(data={"msg": "预约理由不能为空"}, status=201)
                 data = {
                     "state": 1,
                     "feedback": "审核中",
