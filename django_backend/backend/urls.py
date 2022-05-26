@@ -274,6 +274,7 @@ urlpatterns = [
         url(r'^users/topics/person_follow/$', TopicViewSet.as_view({"post": "person_follow"})),    
         url(r'^users/topics/tags/$', TopicViewSet.as_view({"get": "tag_list"})),
         url(r'^users/topics/follow_list/(?P<pk>\d+)/$', TopicViewSet.as_view({"get": "follow_list"})),
+        url(r'^users/recommend/$', TopicViewSet.as_view({"get": "recommend"})),
 
         # 帖子管理
         url(r'^web/post/$', TopicWebViewSet.as_view({"get": "get_topic_list"})),

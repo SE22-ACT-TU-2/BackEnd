@@ -603,7 +603,9 @@ class GroundAccessPolicy(AccessPolicy):
 class TopicAccessPolicy(AccessPolicy):   
     statements = [   
         {   
-            "action": ["topic_list", "topic_delete", "topic_add", "topic_detail", "topic_get", "comment_creat", "comment_delete", "topic_star", "check_others", "person_follow", "tag_list", "follow_list"],
+            "action": ["topic_list", "topic_delete", "topic_add", "topic_detail", "topic_get", "comment_creat",
+                       "comment_delete", "topic_star", "check_others", "person_follow", "tag_list", "follow_list",
+                       "recommend"],
             "principal": "*",   
             "effect": "allow",   
         },   

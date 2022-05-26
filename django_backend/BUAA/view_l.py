@@ -380,3 +380,16 @@ class TopicViewSet(ModelViewSet):
             "friend": friend_list
         }
         return Response(data=res, status=201)
+
+    # 推荐用户接口
+    def recommend(self, request):
+        users = WXUser.objects.all()
+        user_list = []
+        for user in users:
+            res = {
+                "avatar": user.avatar,
+                "nickName": user.name,
+                "id": user.id
+            }
+            user_list.append(res)
+        return Response(user_list)
