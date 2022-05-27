@@ -102,13 +102,13 @@ class MessageConsumer(WebsocketConsumer):
         request_type = data.get('type', '')
         if request_type == 'send_message':
             from_user_id = self.user_id
-            to_user_id = data.get('to_user')
+            to_user_id = int(data.get('to_user'))
             message = data.get('message')
             print("发送消息，from_user_id:", end='')
             print(from_user_id, end='')
             print(" ===> to_user_id:", end='')
-            print(to_user_id)
-            ws = chat_clients.get(to_user_id, None)
+            print(to_user_id," " ,type(to_user_id))
+            ws = chat_clients.get(to_user_id,None)
             if not utils.save_and_send_message(from_user_id, to_user_id, message, ws, self):
                 print("utils.save_and_send_message失败")
                 self.send(json.dumps({"type": "send_message_failed"}, ensure_ascii=False))
@@ -120,7 +120,7 @@ class MessageConsumer(WebsocketConsumer):
             # print(self.user_id, end='，')
             # print("message_ids:", end='')
             # print(message_ids)
-            user_id = data.get('user_id', '')
+            user_id = int(data.get('user_id', '-1'))
             if not utils.receive_message_by_id(user_id, self.user_id):
                 print("utils.receive_message_by_id失败")
             print("接收消息，user_id:", end='')
