@@ -107,7 +107,15 @@ def get_all_user_with_notif():
 
 def push_all_messages(user_id, ws):
     unread_messages = models.Message.objects.filter(to_user_id=user_id, is_read=False)
-    data = list(map(lambda x: serializers.MessageSerializer(x).data, unread_messages))
+    data = []
+    for unread_message in unread_messages:
+        msg = serializers.MessageSerializer(instance=unread_message).data
+        raw_time = msg['created_time']
+        date_ = raw_time.split('T')[0]
+        time_ = raw_time.split('T')[1].split('.')[0]
+        msg['created_time'] = date_ + " " + time_
+        data.append(msg)
+    # data = list(map(lambda x: serializers.MessageSerializer(x).data, unread_messages))
     res = {
         "type": "ws_connected",
         "messages": data
