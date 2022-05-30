@@ -1679,32 +1679,6 @@ class UserVerifyViewSet(ModelViewSet):
         }
         return Response(data=res, status=201)
 
-    # 认证（用户端）
-    def verify(self, request):
-        image = request.POST["picture"]
-        user_id = request.data['user_id']
-        name = request.data['name']
-        student_id = request.data['student_id']
-        path = "userVerify/" + str(user_id) + '_' + get_random_str() + '.jpg'
-        with open(base_dir + path, 'wb') as f1:
-            f1.write(image.read)
-            f1.close()
-        avatar = web_dir + path
-        verify = UserVerify.objects.filter(user_id=user_id)
-        if verify.exists():
-            verify.update(avatar=avatar)
-        else:
-            data = {
-                "user_id": user_id,
-                "name": name,
-                "student_id": student_id,
-                "avatar": avatar
-            }
-            serializer = UserVerifySerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-        return Response(data={"msg": "提交成功"}, status=201)
-
 
 # 场地预约
 class GroundApplyViewSet(ModelViewSet):
