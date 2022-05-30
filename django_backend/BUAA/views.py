@@ -33,6 +33,7 @@ import traceback
 from BUAA.recommend import update_kwd_typ, add_kwd_typ, delete_kwd_typ, get_keyword, get_recommend
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_exempt
+import re
 
 # from datetime import datetime
 
@@ -164,6 +165,15 @@ def _get_booking_time(ground_id, date, user_id):
 def _is_csstd(user_id):
     user = WXUser.objects.get(id=user_id)
     return user.is_csstd
+
+
+def _recharge_validator(money):
+    if re.match(r"\d+(\.\d\d?)?$", money) is None:
+        return "充值数额不合法"
+    money = float(money)
+    if money == 0:
+        return "充值数额不能为0"
+    return "is_valid"
 
 
 def send_new_boya_notf(data):
@@ -554,7 +564,11 @@ class WXUserViewSet(ModelViewSet):
 
     def recharge(self, request):
         user_id = request.data['user_id']
-        add_money = float(request.data['money'])
+        add_money = request.data['money']
+        valid_msg = _recharge_validator(add_money)
+        if valid_msg != "is_valid":
+            return Response(data={"msg": valid_msg}, status=201)
+        add_money = float(add_money)
         pre_money = _user_id2user_money(user_id)
         WXUser.objects.filter(id=user_id).update(money=pre_money + add_money)
         res = {
