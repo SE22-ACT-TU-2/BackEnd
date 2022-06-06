@@ -572,6 +572,8 @@ class WXUserViewSet(ModelViewSet):
         if valid_msg != "is_valid":
             return Response(data={"msg": valid_msg}, status=201)
         add_money = float(add_money)
+        if add_money > 200:
+            return Response(data={"msg": "单次充值不能高于200元"}, status=201)
         pre_money = _user_id2user_money(user_id)
         WXUser.objects.filter(id=user_id).update(money=pre_money + add_money)
         res = {
