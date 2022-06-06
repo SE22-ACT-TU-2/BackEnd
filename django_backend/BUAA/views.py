@@ -426,7 +426,10 @@ def user_login(request):
 @authentication_classes([])  # 用户认证
 def user_register(request):
     # 取出数据
+    print("----------------")
+    print(request.data)
     id_ = request.data['id']
+    print(id_)
     user_info = request.data['userInfo']
 
     WXUser.objects.filter(id=id_).update(name=user_info.get(

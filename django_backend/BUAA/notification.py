@@ -107,8 +107,8 @@ class MessageConsumer(WebsocketConsumer):
             print("发送消息，from_user_id:", end='')
             print(from_user_id, end='')
             print(" ===> to_user_id:", end='')
-            print(to_user_id," " ,type(to_user_id))
-            ws = chat_clients.get(to_user_id,None)
+            print(to_user_id)
+            ws = chat_clients.get(to_user_id, None)
             if not utils.save_and_send_message(from_user_id, to_user_id, message, ws, self):
                 print("utils.save_and_send_message失败")
                 self.send(json.dumps({"type": "send_message_failed"}, ensure_ascii=False))
