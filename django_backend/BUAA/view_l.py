@@ -183,7 +183,7 @@ class TopicViewSet(ModelViewSet):
         user_id = request.data.get("userId")
         topic_id = request.data.get("topicId")
         content = request.data.get("content")
-        TopicComment.objects.create(user_id_id=user_id, topic_id_id=topic_id, content=content)
+        TopicComment.objects.create(user_id_id=user_id, topic_id_id=topic_id, content=content, create_time=datetime.now())
         comment_count = Topic.objects.get(id=topic_id).comment_count + 1   
         Topic.objects.filter(id=topic_id).update(comment_count=comment_count)   
         res = {
