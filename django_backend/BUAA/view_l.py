@@ -241,8 +241,8 @@ class TopicViewSet(ModelViewSet):
         has_follow = True
         if Follow.objects.filter(person_do=user_id, person_done=others_id, tag=0).__len__() == 0:
             has_follow = False
-        follower = Follow.objects.filter(person_done=user_id).__len__()
-        following = Follow.objects.filter(person_do=user_id).__len__()
+        follower = Follow.objects.filter(person_done=others_id).__len__()
+        following = Follow.objects.filter(person_do=others_id).__len__()
         topic_list = []
         topics = Topic.objects.filter(user_id=others_id)
         for topic in topics:
