@@ -31,7 +31,7 @@ class TopicViewSet(ModelViewSet):
 
     # 帖子列表
     def topic_list(self, request):
-        topics = Topic.objects.all()
+        topics = Topic.objects.all().order_by("-create_time")
         topic_list = []
         for topic in topics:
             has_star = True
