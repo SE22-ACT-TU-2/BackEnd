@@ -143,7 +143,7 @@ class TopicViewSet(ModelViewSet):
     def topic_get(self, request):
         tag_id = request.data.get("labelId")
         user_id = request.data.get("userId")
-        topics = Topic.objects.all()
+        topics = Topic.objects.all().order_by("-create_time")
         topic_list = []
         for topic in topics:
             topic_tags = TopicTag.objects.filter(topic_id=topic.id)
