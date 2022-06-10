@@ -573,7 +573,8 @@ class GroundApplyPolicy(AccessPolicy):
 class GroundAccessPolicy(AccessPolicy):
     statements = [
         {
-            "action": ["list", "destroy", "ground_list", "add_ground", "ground_update", "ground_delete", "ground_msg", "ground_mul_price"],
+            "action": ["list", "destroy", "ground_list", "add_ground", "add_ground_test", "ground_update",
+                       "ground_delete", "ground_msg", "ground_mul_price"],
             "principal": "*",
             "effect": "allow",
             "condition": "is_super_user"
@@ -598,27 +599,29 @@ class GroundAccessPolicy(AccessPolicy):
         if not isinstance(request.user, WXUser):
             return False
         return request.user == view.get_object()
-    
 
-class TopicAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
+
+class TopicAccessPolicy(AccessPolicy):
+    statements = [
+        {
             "action": ["topic_list", "topic_delete", "topic_add", "topic_detail", "topic_get", "comment_creat",
                        "comment_delete", "topic_star", "check_others", "person_follow", "tag_list", "follow_list",
                        "recommend"],
-            "principal": "*",   
-            "effect": "allow",   
-        },   
+            "principal": "*",
+            "effect": "allow",
+        },
     ]
+
 
 class TopicWebAccessPolicy(AccessPolicy):
     statements = [
         {
-            "action":["get_topic_list", "search_topic_by_username", "topic_delete"],
+            "action": ["get_topic_list", "search_topic_by_username", "topic_delete"],
             "principal": "*",
             "effect": "allow",
         }
     ]
+
 
 class TagWebAccessPolicy(AccessPolicy):
     statements = [
@@ -630,53 +633,53 @@ class TagWebAccessPolicy(AccessPolicy):
     ]
 
 
-class TopicCommentAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
-            "action": [],   
-            "principal": "*",   
-            "effect": "allow",   
-        },   
-    ]   
+class TopicCommentAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": [],
+            "principal": "*",
+            "effect": "allow",
+        },
+    ]
 
 
-class StarAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
-            "action": [],   
-            "principal": "*",   
-            "effect": "allow",   
-        },   
-    ]   
+class StarAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": [],
+            "principal": "*",
+            "effect": "allow",
+        },
+    ]
 
 
-class TagAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
-            "action": [],   
-            "principal": "*",   
-            "effect": "allow",   
-        },   
-    ]   
+class TagAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": [],
+            "principal": "*",
+            "effect": "allow",
+        },
+    ]
 
 
-class FollowAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
-            "action": [],   
-            "principal": "*",   
-            "effect": "allow",   
-        },   
-    ]   
+class FollowAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": [],
+            "principal": "*",
+            "effect": "allow",
+        },
+    ]
 
 
-class TopicTagAccessPolicy(AccessPolicy):   
-    statements = [   
-        {   
-            "action": [],   
-            "principal": "*",   
-            "effect": "allow",   
-        },   
-    ]   
+class TopicTagAccessPolicy(AccessPolicy):
+    statements = [
+        {
+            "action": [],
+            "principal": "*",
+            "effect": "allow",
+        },
+    ]
 
-# 管理端
+    # 管理端

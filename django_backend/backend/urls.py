@@ -248,6 +248,7 @@ urlpatterns = [
         # 场地管理
         url(r'^web/ground/$', GroundViewSet.as_view({"get": "ground_list"})),  # 场地列表
         url(r'^web/ground/add_ground/$', GroundViewSet.as_view({"post": "add_ground"})),  # 添加场地
+        url(r'^web/ground/add_ground_test/$', GroundViewSet.as_view({"post": "add_ground_test"})),
         url(r'^web/ground/(?P<pk>\d+)/$',
             GroundViewSet.as_view({"put": "ground_update", "delete": "ground_delete", "get": "ground_msg"})),
         url(r'^web/ground/mul/$', GroundViewSet.as_view({"post": "ground_mul_price"})),

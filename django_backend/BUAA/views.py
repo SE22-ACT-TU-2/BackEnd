@@ -15,6 +15,7 @@ import hashlib
 import backend.settings as settings
 from django.core.cache import cache
 import requests
+from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from .serializers import *
 from rest_framework.response import Response
@@ -40,8 +41,17 @@ import re
 base_dir = '/root/server_files/'
 web_dir = 'https://www.reedsailing.xyz/server_files/'
 web_dir = 'http://114.116.194.3/server_files/'
+web_dir = 'https://acttu2.2022martu1.cn/server_files/'
 
 sender = utils.MailSender()
+
+
+def test_request(request):
+    print(type(request))  # 打印出request的类型
+    print(request.environ)  # 打印出request的header详细信息
+    # 循环打印出每一个键值对
+    for k, v in request.environ.items():
+        print(k, v)
 
 
 def testHmb(request):
@@ -2557,19 +2567,161 @@ class GroundViewSet(ModelViewSet):
                     ground_list.append(res)
             return Response(ground_list)
 
-    # 添加场地（web）
+    def add_ground_test(self, request):
+        print("111111111111111111")
+        print(request)
+        # print(request.POST)
+        # image_name = request.POST.get('file_name')
+        print("2222222222222")
+        image = request.FILES['files']
+        if not image:
+            return Response(data={"msg": "failed"})
+        return Response(data={"msg": "success"})
+
+    # # 添加场地（web）
+    # def add_ground(self, request):
+    #     from datetime import datetime
+    #     admin_name = request.user
+    #     name = request.data.get("name")
+    #     area = request.data.get("area")
+    #     price = request.data.get("price")
+    #     apply_needed = request.data.get("apply_needed")
+    #     description = request.data.get("description")
+    #     avatar = request.data.get("avatar")
+    #     begin_time = request.data.get("begin_time")
+    #     end_time = request.data.get("end_time")
+    #     administrator = request.data.get("administrator")
+    #     begin_time_hour = begin_time.split('点')
+    #     begin_time_min = begin_time_hour[1].split('分')
+    #     end_time_hour = end_time.split('点')
+    #     end_time_min = end_time_hour[1].split('分')
+    #     begin_time0 = datetime(2022, 1, 1, int(begin_time_hour[0]), int(begin_time_min[0]), 0)
+    #     end_time0 = datetime(2022, 1, 1, int(end_time_hour[0]), int(end_time_min[0]), 0)
+    #     begin_time0 = begin_time0.strftime('%Y-%m-%d %H:%M:%S')
+    #     begin_time1 = begin_time0.split(' ')[1]
+    #     end_time0 = end_time0.strftime('%Y-%m-%d %H:%M:%S')
+    #     end_time1 = end_time0.split(' ')[1]
+    #     ground_code = ''
+    #     if area == '羽毛球馆':
+    #         now_id = Ground.objects.filter(area='羽毛球馆').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "01010" + next_id
+    #         else:
+    #             ground_code = "0101" + next_id
+    #     elif area == '乒乓球馆':
+    #         now_id = Ground.objects.filter(area='乒乓球馆').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "01020" + next_id
+    #         else:
+    #             ground_code = "0102" + next_id
+    #     elif area == '新主C楼':
+    #         now_id = Ground.objects.filter(area='新主C楼').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02010" + next_id
+    #         else:
+    #             ground_code = "0201" + next_id
+    #     elif area == '新主D楼':
+    #         now_id = Ground.objects.filter(area='新主D楼').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02020" + next_id
+    #         else:
+    #             ground_code = "0202" + next_id
+    #     elif area == '新主E楼':
+    #         now_id = Ground.objects.filter(area='新主E楼').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02030" + next_id
+    #         else:
+    #             ground_code = "0203" + next_id
+    #     elif area == '新主F楼':
+    #         now_id = Ground.objects.filter(area='新主F楼').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02040" + next_id
+    #         else:
+    #             ground_code = "0204" + next_id
+    #     elif area == '新主G楼':
+    #         now_id = Ground.objects.filter(area='新主G楼').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02050" + next_id
+    #         else:
+    #             ground_code = "0205" + next_id
+    #     elif area == '教学楼1':
+    #         now_id = Ground.objects.filter(area='教学楼1').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02060" + next_id
+    #         else:
+    #             ground_code = "0206" + next_id
+    #     elif area == '教学楼2':
+    #         now_id = Ground.objects.filter(area='教学楼2').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02070" + next_id
+    #         else:
+    #             ground_code = "0207" + next_id
+    #     elif area == '教学楼3':
+    #         now_id = Ground.objects.filter(area='教学楼3').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02080" + next_id
+    #         else:
+    #             ground_code = "0208" + next_id
+    #     elif area == '主M':
+    #         now_id = Ground.objects.filter(area='主M').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02090" + next_id
+    #         else:
+    #             ground_code = "0209" + next_id
+    #     elif area == '教学楼5':
+    #         now_id = Ground.objects.filter(area='教学楼5').__len__()
+    #         next_id = str(now_id + 1)
+    #         if now_id + 1 < 10:
+    #             ground_code = "02100" + next_id
+    #         else:
+    #             ground_code = "0210" + next_id
+    #     else:
+    #         ground_code = "999999"
+    #
+    #     Ground.objects.create(name=name, area=area, price=price, apply_needed=apply_needed,
+    #                           description=description, avatar=avatar, begin_time=begin_time1,
+    #                           end_time=end_time1, administrator_id=administrator, code=ground_code)
+    #     grounds = Ground.objects.filter(name=name, area=area, price=price, apply_needed=apply_needed,
+    #                                     description=description, avatar=avatar, begin_time=begin_time1,
+    #                                     end_time=end_time1, administrator_id=administrator, code=ground_code)
+    #     content = str(admin_name) + ": 新建了一个名叫“" + name + "”的场地"  # 0513
+    #     Log.objects.create(content=content, pub_time=datetime.now())
+    #     return self.paginate(grounds)
+
+    # 添加场地（web）hmb
     def add_ground(self, request):
         from datetime import datetime
+        print("11111")
+        print(request.data)
         admin_name = request.user
-        name = request.data.get("name")
-        area = request.data.get("area")
-        price = request.data.get("price")
-        apply_needed = request.data.get("apply_needed")
-        description = request.data.get("description")
-        avatar = request.data.get("avatar")
-        begin_time = request.data.get("begin_time")
-        end_time = request.data.get("end_time")
-        administrator = request.data.get("administrator")
+        name = request.POST.get("name")
+        area = request.POST.get("area")
+        price = request.POST.get("price")
+        apply_needed = request.POST.get("apply_needed")
+        description = request.POST.get("description")
+        begin_time = request.POST.get("begin_time")
+        end_time = request.POST.get("end_time")
+        administrator = request.POST.get("administrator")
+        image = request.FILES.get('picture')
+        if not image:
+            print("没有图片！！！")
+            return Response(data={"msg": "没有图片，或者提取失败"}, status=200)
+        path = "groundImg/" + str(name) + '_' + get_random_str() + '.jpg'
+        with open(base_dir + path, 'wb') as f1:
+            f1.write(image.read())
+            f1.close()
+        avatar = web_dir + path
         begin_time_hour = begin_time.split('点')
         begin_time_min = begin_time_hour[1].split('分')
         end_time_hour = end_time.split('点')
