@@ -34,6 +34,8 @@ import traceback
 from BUAA.recommend import update_kwd_typ, add_kwd_typ, delete_kwd_typ, get_keyword, get_recommend
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator   
+from django.forms import model_to_dict   
 import re
 
 # from datetime import datetime
@@ -2144,6 +2146,9 @@ class GroundApplyViewSet(ModelViewSet):
 
     # 场地审核列表（web）
     def groundVerify_list(self, request):
+        page = request.GET.get('page', 1)   
+        limit = request.GET.get('limit', 10)   
+
         admin_name = request.user
         admin = User.objects.get(username=admin_name)
         admin_id = admin.id
@@ -2151,8 +2156,10 @@ class GroundApplyViewSet(ModelViewSet):
         admin_type = buaa_admin.type
         if admin_type == "super" or admin_type == "monitor":
             applys = GroundApply.objects.filter(state=1)
+            paginator = Paginator(applys, limit)   
+            page_need = paginator.get_page(page)   
             apply_list = []
-            for apply in applys:
+            for apply in page_need:   
                 user = WXUser.objects.get(id=apply.user_id.id)
                 ground = Ground.objects.get(id=apply.ground_id.id)
                 res = {
@@ -2169,37 +2176,35 @@ class GroundApplyViewSet(ModelViewSet):
                     "identity": apply.identity,
                     "apply_time": apply.apply_time,
                     "ground_id": apply.ground_id.id,
-                    "user_id": apply.user_id.id,
-                    "email": user.email
+                    "user_id": apply.user_id.id
                 }
                 apply_list.append(res)
             return Response(apply_list)
         if admin_type == "ground":
-            applys = GroundApply.objects.filter(state=1)
+            applys = GroundApply.objects.filter(state=1, ground_id__administrator_id=admin_id)
+            paginator = Paginator(applys, limit)   
+            page_need = paginator.get_page(page)   
             apply_list = []
-            for apply in applys:
+            for apply in page_need:   
                 user = WXUser.objects.get(id=apply.user_id.id)
                 ground = Ground.objects.get(id=apply.ground_id.id)
-                ground_admin = ground.administrator_id
-                if ground_admin == admin_id:
-                    res = {
-                        "id": apply.id,
-                        "student_id": user.student_id,
-                        "student_name": user.real_name,
-                        "ground_name": ground.name,
-                        "begin_time": apply.begin_time,
-                        "end_time": apply.end_time,
-                        "state": apply.state,
-                        "feedback": apply.feedback,
-                        "can_change": apply.can_change,
-                        "file": apply.file,
-                        "identity": apply.identity,
-                        "apply_time": apply.apply_time,
-                        "ground_id": apply.ground_id.id,
-                        "user_id": apply.user_id.id,
-                        "email": user.email
-                    }
-                    apply_list.append(res)
+                res = {
+                    "id": apply.id,
+                    "student_id": user.student_id,
+                    "student_name": user.real_name,
+                    "ground_name": ground.name,
+                    "begin_time": apply.begin_time,
+                    "end_time": apply.end_time,
+                    "state": apply.state,
+                    "feedback": apply.feedback,
+                    "can_change": apply.can_change,
+                    "file": apply.file,
+                    "identity": apply.identity,
+                    "apply_time": apply.apply_time,
+                    "ground_id": apply.ground_id.id,
+                    "user_id": apply.user_id.id
+                }
+                apply_list.append(res)
             return Response(apply_list)
 
     def groundVerify_msg(self, request, pk):
@@ -2296,6 +2301,9 @@ class GroundApplyViewSet(ModelViewSet):
         return Response(res)
 
     def groundApply_list(self, request):
+        page = request.GET.get('page', 1)   
+        limit = request.GET.get('limit', 10)   
+
         admin_name = request.user
         admin = User.objects.get(username=admin_name)
         admin_id = admin.id
@@ -2303,8 +2311,37 @@ class GroundApplyViewSet(ModelViewSet):
         admin_type = buaa_admin.type
         if admin_type == "super" or admin_type == "monitor":
             applys = GroundApply.objects.all()
+            paginator = Paginator(applys, limit)   
+            page_need = paginator.get_page(page)   
             apply_list = []
-            for apply in applys:
+            for apply in page_need:   
+                user = WXUser.objects.get(id=apply.user_id.id)
+                ground = Ground.objects.get(id=apply.ground_id.id)
+                res = {
+                    "id": apply.id,
+
+                    "student_id": user.student_id,
+                    "student_name": user.real_name,
+                    "ground_name": ground.name,
+                    "begin_time": apply.begin_time,
+                    "end_time": apply.end_time,
+                    "state": apply.state,
+                    "feedback": apply.feedback,
+                    "can_change": apply.can_change,
+                    "file": apply.file,
+                    "identity": apply.identity,
+                    "apply_time": apply.apply_time,
+                    "ground_id": apply.ground_id.id,
+                    "user_id": apply.user_id.id
+                }
+                apply_list.append(res)
+            return Response(apply_list)
+        if admin_type == "ground":
+            applys = GroundApply.objects.filter(ground_id__administrator_id=admin_id)
+            paginator = Paginator(applys, limit)   
+            page_need = paginator.get_page(page)   
+            apply_list = []
+            for apply in page_need:   
                 user = WXUser.objects.get(id=apply.user_id.id)
                 ground = Ground.objects.get(id=apply.ground_id.id)
                 res = {
@@ -2321,37 +2358,9 @@ class GroundApplyViewSet(ModelViewSet):
                     "identity": apply.identity,
                     "apply_time": apply.apply_time,
                     "ground_id": apply.ground_id.id,
-                    "user_id": apply.user_id.id,
-                    "email": user.email
+                    "user_id": apply.user_id.id
                 }
                 apply_list.append(res)
-            return Response(apply_list)
-        if admin_type == "ground":
-            applys = GroundApply.objects.all()
-            apply_list = []
-            for apply in applys:
-                user = WXUser.objects.get(id=apply.user_id.id)
-                ground = Ground.objects.get(id=apply.ground_id.id)
-                ground_admin = ground.administrator_id
-                if ground_admin == admin_id:
-                    res = {
-                        "id": apply.id,
-                        "student_id": user.student_id,
-                        "student_name": user.real_name,
-                        "ground_name": ground.name,
-                        "begin_time": apply.begin_time,
-                        "end_time": apply.end_time,
-                        "state": apply.state,
-                        "feedback": apply.feedback,
-                        "can_change": apply.can_change,
-                        "file": apply.file,
-                        "identity": apply.identity,
-                        "apply_time": apply.apply_time,
-                        "ground_id": apply.ground_id.id,
-                        "user_id": apply.user_id.id,
-                        "email": user.email
-                    }
-                    apply_list.append(res)
             return Response(apply_list)
 
     def groundApply_delete(self, request, pk):
@@ -2465,57 +2474,65 @@ class GroundApplyViewSet(ModelViewSet):
         return Response(res)
 
     def search_apply(self, request):
+        page = request.data.get('page', 1)   
+        limit = request.data.get('limit', 10)   
+
         student_id = request.data.get("student_id")
-        applys = GroundApply.objects.all()
+        applys = GroundApply.objects.filter(user_id__student_id=student_id)   
+        paginator = Paginator(applys, limit)   
+        page_need = paginator.get_page(page)   
         apply_list = []
-        for apply in applys:
+        for apply in page_need:   
             user = WXUser.objects.get(id=apply.user_id.id)
             ground = Ground.objects.get(id=apply.ground_id.id)
-            if student_id == user.student_id:
-                res = {
-                    "id": apply.id,
-                    "student_id": user.student_id,
-                    "student_name": user.real_name,
-                    "ground_name": ground.name,
-                    "begin_time": apply.begin_time,
-                    "end_time": apply.end_time,
-                    "state": apply.state,
-                    "feedback": apply.feedback,
-                    "can_change": apply.can_change,
-                    "file": apply.file,
-                    "identity": apply.identity,
-                    "apply_time": apply.apply_time,
-                    "ground_id": apply.ground_id.id,
-                    "user_id": apply.user_id.id
-                }
-                apply_list.append(res)
+            res = {
+                "id": apply.id,
+                "student_id": user.student_id,
+                "student_name": user.real_name,
+                "ground_name": ground.name,
+                "begin_time": apply.begin_time,
+                "end_time": apply.end_time,
+                "state": apply.state,
+                "feedback": apply.feedback,
+                "can_change": apply.can_change,
+                "file": apply.file,
+                "identity": apply.identity,
+                "apply_time": apply.apply_time,
+                "ground_id": apply.ground_id.id,
+                "user_id": apply.user_id.id
+            }
+            apply_list.append(res)
         return Response(apply_list)
 
     def search_verify(self, request):
+        page = request.data.get('page', 1)   
+        limit = request.data.get('limit', 10)   
+
         student_id = request.data.get("student_id")
-        applys = GroundApply.objects.filter(state=1)
+        applys = GroundApply.objects.filter(state=1, user_id__student_id=student_id)   
+        paginator = Paginator(applys, limit)   
+        page_need = paginator.get_page(page)   
         apply_list = []
-        for apply in applys:
+        for apply in page_need:   
             user = WXUser.objects.get(id=apply.user_id.id)
             ground = Ground.objects.get(id=apply.ground_id.id)
-            if student_id == user.student_id:
-                res = {
-                    "id": apply.id,
-                    "student_id": user.student_id,
-                    "student_name": user.real_name,
-                    "ground_name": ground.name,
-                    "begin_time": apply.begin_time,
-                    "end_time": apply.end_time,
-                    "state": apply.state,
-                    "feedback": apply.feedback,
-                    "can_change": apply.can_change,
-                    "file": apply.file,
-                    "identity": apply.identity,
-                    "apply_time": apply.apply_time,
-                    "ground_id": apply.ground_id.id,
-                    "user_id": apply.user_id.id
-                }
-                apply_list.append(res)
+            res = {
+                "id": apply.id,
+                "student_id": user.student_id,
+                "student_name": user.real_name,
+                "ground_name": ground.name,
+                "begin_time": apply.begin_time,
+                "end_time": apply.end_time,
+                "state": apply.state,
+                "feedback": apply.feedback,
+                "can_change": apply.can_change,
+                "file": apply.file,
+                "identity": apply.identity,
+                "apply_time": apply.apply_time,
+                "ground_id": apply.ground_id.id,
+                "user_id": apply.user_id.id
+            }
+            apply_list.append(res)
         return Response(apply_list)
 
 
@@ -2540,31 +2557,41 @@ class GroundViewSet(ModelViewSet):
 
     # 场地列表
     def ground_list(self, request):
+        page = request.GET.get('page', 1)   
+        limit = request.GET.get('limit', 10)   
+
         admin_name = request.user
         admin = User.objects.get(username=admin_name)
         admin_id = admin.id
         buaa_admin = SuperAdmin.objects.get(user_ptr_id=admin_id)
         admin_type = buaa_admin.type
         if admin_type == "super":
-            grounds = Ground.objects.all().order_by('code')
-            return self.paginate(grounds)
+            grounds = Ground.objects.all().order_by('code')  # 0509
+            paginator = Paginator(grounds, limit)   
+            page_need = paginator.get_page(page)   
+            ground_list = []   
+            for i in page_need:   
+                mode_to = model_to_dict(i, exclude='img')   
+                ground_list.append(mode_to)   
+            return Response(ground_list)   
         if admin_type == "ground":
-            grounds = Ground.objects.all().order_by('code')
+            grounds = Ground.objects.filter(administrator_id=admin_id).order_by('code')  # 0509
+            paginator = Paginator(grounds, limit)   
+            page_need = paginator.get_page(page)   
             ground_list = []
-            for ground in grounds:
-                ground_admin = ground.administrator_id
-                if ground_admin == admin_id:
-                    res = {
-                        "id": ground.id,
-                        "name": ground.name,
-                        "area": ground.area,
-                        "apply_needed": ground.apply_needed,
-                        "description": ground.description,
-                        "avatar": ground.avatar,
-                        "begin_time": ground.begin_time,
-                        "end_time": ground.end_time
-                    }
-                    ground_list.append(res)
+            for ground in page_need:   
+                res = {
+                    "id": ground.id,
+                    "name": ground.name,
+                    "area": ground.area,
+                    "apply_needed": ground.apply_needed,
+                    "description": ground.description,
+                    "avatar": ground.avatar,
+                    "begin_time": ground.begin_time,
+                    "end_time": ground.end_time,
+                    "code": ground.code
+                }
+                ground_list.append(res)
             return Response(ground_list)
 
     def add_ground_test(self, request):
